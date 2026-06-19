@@ -5,6 +5,10 @@ import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 
 const NAV_ITEMS = [
+  { href: "/hot-topics", label: "热点收集", icon: "🔥" },
+  { href: "/create", label: "内容创作", icon: "✍️" },
+  { href: "/calendar", label: "发布日历", icon: "📅" },
+  { href: "/analytics", label: "数据分析", icon: "📊" },
   { href: "/daily", label: "每日编辑", icon: "📝" },
   { href: "/publish", label: "发布管理", icon: "📋" },
   { href: "/settings", label: "设置", icon: "⚙️" },

@@ -15,18 +15,73 @@ model DailyNote {
   entries    ContentEntry[]
 }
 
-model ContentEntry {
-  id            String           @id @default(cuid())
-  daily_note_id String
-  daily_note    DailyNote        @relation(fields: [daily_note_id], references: [id], onDelete: Cascade)
-  sequence      Int
-  title         String?
-  body          String           @default("")
-  created_at    DateTime         @default(now())
-  updated_at    DateTime         @updatedAt
-  platforms     PlatformPublish[]
+model HotTopic {
+  id         String   @id @default(cuid())
+  title      String
+  source     String   @default("manual")
+  content    String   @default("")
+  url        String?
+  tags       String?
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  entries    ContentEntry[]
+}
 
-  @@unique([daily_note_id, sequence])
+model ContentEntry {
+  id            String             @id @default(cuid())
+  hot_topic_id  String?
+  hot_topic     HotTopic?          @relation(fields: [hot_topic_id], references: [id])
+  daily_note_id String?
+  daily_note    DailyNote?         @relation(fields: [daily_note_id], references: [id], onDelete: Cascade)
+  sequence      Int                @default(0)
+  title         String?
+  body          String             @default("")
+  created_at    DateTime           @default(now())
+  updated_at    DateTime           @updatedAt
+  platforms     PlatformContent[]
+  old_platforms PlatformPublish[]
+
+  @@index([daily_note_id])
+  @@index([hot_topic_id])
+}
+
+model PlatformContent {
+  id                   String        @id @default(cuid())
+  content_entry_id     String
+  content_entry        ContentEntry  @relation(fields: [content_entry_id], references: [id], onDelete: Cascade)
+  platform             String
+  formatted            String        @default("")
+  style_rules_snapshot String?
+  status               String        @default("draft")
+  published_at         DateTime?
+  created_at           DateTime      @default(now())
+  updated_at           DateTime      @updatedAt
+  scheduled_post       ScheduledPost?
+
+  @@unique([content_entry_id, platform])
+}
+
+model ScheduledPost {
+  id                  String          @id @default(cuid())
+  platform_content_id String          @unique
+  platform_content    PlatformContent @relation(fields: [platform_content_id], references: [id], onDelete: Cascade)
+  scheduled_date      String
+  scheduled_time      String?
+  position            Int             @default(0)
+  created_at          DateTime        @default(now())
+  updated_at          DateTime        @updatedAt
+}
+
+model PlatformRule {
+  id          String   @id @default(cuid())
+  platform    String   @unique
+  label       String
+  style       String
+  structure   String
+  constraints String
+  is_preset   Boolean  @default(true)
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
 }
 
 model PlatformPublish {
