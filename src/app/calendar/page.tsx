@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -42,6 +42,28 @@ interface PendingContent {
   };
 }
 
+function formatDate(date: Date): string {
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+}
+
+function getPlatformLabel(platform: string): string {
+  const labels: Record<string, string> = {
+    tweets: "推文",
+    xiaohongshu: "小红书",
+    zhihu: "知乎",
+  };
+  return labels[platform] || platform;
+}
+
+function getPlatformColor(platform: string): string {
+  const colors: Record<string, string> = {
+    tweets: "bg-blue-100 text-blue-800",
+    xiaohongshu: "bg-red-100 text-red-800",
+    zhihu: "bg-purple-100 text-purple-800",
+  };
+  return colors[platform] || "bg-gray-100 text-gray-800";
+}
+
 export default function CalendarPage() {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [scheduledPosts, setScheduledPosts] = useState<ScheduledPost[]>([]);
@@ -52,25 +74,33 @@ export default function CalendarPage() {
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth();
 
-  const firstDay = new Date(year, month, 1);
-  const lastDay = new Date(year, month + 1, 0);
-  const startDate = new Date(firstDay);
-  startDate.setDate(startDate.getDate() - startDate.getDay());
-  const endDate = new Date(lastDay);
-  endDate.setDate(endDate.getDate() + (6 - endDate.getDay()));
+  const { startDateStr, endDateStr, days } = useMemo(() => {
+    const firstDay = new Date(year, month, 1);
+    const lastDay = new Date(year, month + 1, 0);
+    const start = new Date(firstDay);
+    start.setDate(start.getDate() - start.getDay());
+    const end = new Date(lastDay);
+    end.setDate(end.getDate() + (6 - end.getDay()));
 
-  const formatDate = (date: Date) => {
-    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
-  };
+    const daysList: Date[] = [];
+    const current = new Date(start);
+    while (current <= end) {
+      daysList.push(new Date(current));
+      current.setDate(current.getDate() + 1);
+    }
+
+    return {
+      startDateStr: formatDate(start),
+      endDateStr: formatDate(end),
+      days: daysList,
+    };
+  }, [year, month]);
 
   const fetchData = useCallback(async () => {
     setLoading(true);
     try {
-      const start = formatDate(startDate);
-      const end = formatDate(endDate);
-
       const [scheduleRes, publishRes] = await Promise.all([
-        fetch(`/api/schedule?start=${start}&end=${end}`),
+        fetch(`/api/schedule?start=${startDateStr}&end=${endDateStr}`),
         fetch("/api/publish?status=draft"),
       ]);
 
@@ -87,7 +117,7 @@ export default function CalendarPage() {
             content_entry: {
               title: string | null;
               body: string;
-              daily_note: { date: string };
+              hot_topic: { title: string } | null;
             };
           }) => ({
             id: item.id,
@@ -96,7 +126,7 @@ export default function CalendarPage() {
             content_entry: {
               title: item.content_entry.title,
               body: item.content_entry.body,
-              hot_topic: null,
+              hot_topic: item.content_entry.hot_topic,
             },
           })
         )
@@ -106,7 +136,7 @@ export default function CalendarPage() {
     } finally {
       setLoading(false);
     }
-  }, [startDate, endDate]);
+  }, [startDateStr, endDateStr]);
 
   useEffect(() => {
     fetchData();
@@ -124,24 +154,6 @@ export default function CalendarPage() {
     return scheduledPosts.filter((post) => post.scheduled_date === dateStr);
   }
 
-  function getPlatformLabel(platform: string): string {
-    const labels: Record<string, string> = {
-      tweets: "推文",
-      xiaohongshu: "小红书",
-      zhihu: "知乎",
-    };
-    return labels[platform] || platform;
-  }
-
-  function getPlatformColor(platform: string): string {
-    const colors: Record<string, string> = {
-      tweets: "bg-blue-100 text-blue-800",
-      xiaohongshu: "bg-red-100 text-red-800",
-      zhihu: "bg-purple-100 text-purple-800",
-    };
-    return colors[platform] || "bg-gray-100 text-gray-800";
-  }
-
   async function handleDrop(dateStr: string) {
     if (!draggedItem) return;
 
@@ -156,7 +168,11 @@ export default function CalendarPage() {
       });
 
       if (res.ok) {
-        fetchData();
+        const data = await res.json();
+        setScheduledPosts((prev) => [...prev, data.scheduledPost]);
+        setPendingContent((prev) =>
+          prev.filter((item) => item.id !== draggedItem.id)
+        );
       }
     } catch (error) {
       console.error("Error scheduling:", error);
@@ -169,21 +185,15 @@ export default function CalendarPage() {
     try {
       const res = await fetch(`/api/schedule/${id}`, { method: "DELETE" });
       if (res.ok) {
-        fetchData();
+        setScheduledPosts((prev) => prev.filter((post) => post.id !== id));
       }
     } catch (error) {
       console.error("Error removing schedule:", error);
     }
   }
 
-  const days: Date[] = [];
-  const current = new Date(startDate);
-  while (current <= endDate) {
-    days.push(new Date(current));
-    current.setDate(current.getDate() + 1);
-  }
-
   const weekDays = ["日", "一", "二", "三", "四", "五", "六"];
+  const todayStr = formatDate(new Date());
 
   if (loading) {
     return (
@@ -231,17 +241,14 @@ export default function CalendarPage() {
                 {days.map((day) => {
                   const dateStr = formatDate(day);
                   const isCurrentMonth = day.getMonth() === month;
-                  const isToday =
-                    formatDate(day) === formatDate(new Date());
+                  const isToday = dateStr === todayStr;
                   const posts = getPostsForDate(dateStr);
 
                   return (
                     <div
                       key={dateStr}
-                      className={`min-h-[100px] border rounded-md p-2 ${
-                        isCurrentMonth
-                          ? "bg-background"
-                          : "bg-muted/50"
+                      className={`min-h-[100px] border rounded-md p-2 transition-colors ${
+                        isCurrentMonth ? "bg-background" : "bg-muted/50"
                       } ${isToday ? "border-primary" : "border-border"}`}
                       onDragOver={(e) => {
                         e.preventDefault();
@@ -258,17 +265,12 @@ export default function CalendarPage() {
                     >
                       <div
                         className={`text-sm mb-1 ${
-                          isCurrentMonth
-                            ? "font-medium"
-                            : "text-muted-foreground"
+                          isCurrentMonth ? "font-medium" : "text-muted-foreground"
                         }`}
                       >
                         {day.getDate()}
                         {posts.length > 0 && (
-                          <Badge
-                            variant="secondary"
-                            className="ml-1 text-xs"
-                          >
+                          <Badge variant="secondary" className="ml-1 text-xs">
                             {posts.length}
                           </Badge>
                         )}
@@ -282,12 +284,14 @@ export default function CalendarPage() {
                             )}`}
                             title={`${getPlatformLabel(
                               post.platform_content.platform
-                            )}: ${post.platform_content.content_entry.title || post.platform_content.content_entry.hot_topic?.title || "无标题"}`}
+                            )}: ${
+                              post.platform_content.content_entry.title ||
+                              post.platform_content.content_entry.hot_topic?.title ||
+                              "无标题"
+                            }`}
                             onClick={() => handleRemoveSchedule(post.id)}
                           >
-                            {getPlatformLabel(
-                              post.platform_content.platform
-                            )}
+                            {getPlatformLabel(post.platform_content.platform)}
                           </div>
                         ))}
                         {posts.length > 3 && (
