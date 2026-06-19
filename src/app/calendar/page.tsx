@@ -5,9 +5,17 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
+import {
   ChevronLeft,
   ChevronRight,
   Calendar as CalendarIcon,
+  Eye,
 } from "lucide-react";
 
 interface ScheduledPost {
@@ -70,6 +78,12 @@ export default function CalendarPage() {
   const [pendingContent, setPendingContent] = useState<PendingContent[]>([]);
   const [loading, setLoading] = useState(true);
   const [draggedItem, setDraggedItem] = useState<PendingContent | null>(null);
+  const [previewContent, setPreviewContent] = useState<PendingContent | null>(
+    null
+  );
+  const [previewScheduled, setPreviewScheduled] = useState<ScheduledPost | null>(
+    null
+  );
 
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth();
@@ -279,19 +293,15 @@ export default function CalendarPage() {
                         {posts.slice(0, 3).map((post) => (
                           <div
                             key={post.id}
-                            className={`text-xs p-1 rounded cursor-pointer hover:opacity-80 ${getPlatformColor(
+                            className={`text-xs p-1 rounded cursor-pointer hover:opacity-80 flex items-center justify-between ${getPlatformColor(
                               post.platform_content.platform
                             )}`}
-                            title={`${getPlatformLabel(
-                              post.platform_content.platform
-                            )}: ${
-                              post.platform_content.content_entry.title ||
-                              post.platform_content.content_entry.hot_topic?.title ||
-                              "无标题"
-                            }`}
-                            onClick={() => handleRemoveSchedule(post.id)}
+                            onClick={() => setPreviewScheduled(post)}
                           >
-                            {getPlatformLabel(post.platform_content.platform)}
+                            <span>
+                              {getPlatformLabel(post.platform_content.platform)}
+                            </span>
+                            <Eye className="h-3 w-3" />
                           </div>
                         ))}
                         {posts.length > 3 && (
@@ -323,15 +333,29 @@ export default function CalendarPage() {
                   {pendingContent.map((item) => (
                     <div
                       key={item.id}
-                      className={`p-2 rounded-md cursor-move hover:shadow-md transition-shadow ${getPlatformColor(
+                      className={`p-2 rounded-md hover:shadow-md transition-shadow ${getPlatformColor(
                         item.platform
                       )}`}
                       draggable
                       onDragStart={() => setDraggedItem(item)}
                       onDragEnd={() => setDraggedItem(null)}
                     >
-                      <div className="text-xs font-medium">
-                        {getPlatformLabel(item.platform)}
+                      <div className="flex items-center justify-between">
+                        <div className="text-xs font-medium">
+                          {getPlatformLabel(item.platform)}
+                        </div>
+                        <button
+                          type="button"
+                          className="opacity-60 hover:opacity-100"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setPreviewContent(item);
+                          }}
+                          onMouseDown={(e) => e.stopPropagation()}
+                          aria-label="查看内容"
+                        >
+                          <Eye className="h-3 w-3" />
+                        </button>
                       </div>
                       <div className="text-xs truncate mt-1">
                         {item.content_entry.title ||
@@ -346,6 +370,110 @@ export default function CalendarPage() {
           </Card>
         </div>
       </div>
+
+      <Dialog
+        open={!!previewContent}
+        onOpenChange={(open) => !open && setPreviewContent(null)}
+      >
+        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+          {previewContent && (
+            <>
+              <DialogHeader>
+                <DialogTitle className="flex items-center gap-2">
+                  <Badge className={getPlatformColor(previewContent.platform)}>
+                    {getPlatformLabel(previewContent.platform)}
+                  </Badge>
+                  <span>
+                    {previewContent.content_entry.title ||
+                      previewContent.content_entry.hot_topic?.title ||
+                      "无标题"}
+                  </span>
+                </DialogTitle>
+                <DialogDescription>
+                  待排期内容预览
+                </DialogDescription>
+              </DialogHeader>
+              <div className="mt-4">
+                <div className="text-xs font-medium text-muted-foreground mb-2">
+                  关联热点
+                </div>
+                <div className="p-3 bg-muted rounded-md text-sm mb-4">
+                  {previewContent.content_entry.hot_topic?.title || "无"}
+                </div>
+                <div className="text-xs font-medium text-muted-foreground mb-2">
+                  内容正文
+                </div>
+                <div className="p-3 bg-muted rounded-md text-sm whitespace-pre-wrap">
+                  {previewContent.formatted || "暂无内容"}
+                </div>
+              </div>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      <Dialog
+        open={!!previewScheduled}
+        onOpenChange={(open) => !open && setPreviewScheduled(null)}
+      >
+        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+          {previewScheduled && (
+            <>
+              <DialogHeader>
+                <DialogTitle className="flex items-center gap-2">
+                  <Badge
+                    className={getPlatformColor(
+                      previewScheduled.platform_content.platform
+                    )}
+                  >
+                    {getPlatformLabel(
+                      previewScheduled.platform_content.platform
+                    )}
+                  </Badge>
+                  <span>
+                    {previewScheduled.platform_content.content_entry.title ||
+                      previewScheduled.platform_content.content_entry.hot_topic
+                        ?.title ||
+                      "无标题"}
+                  </span>
+                </DialogTitle>
+                <DialogDescription>
+                  排期于 {previewScheduled.scheduled_date}
+                  {previewScheduled.scheduled_time &&
+                    ` ${previewScheduled.scheduled_time}`}
+                </DialogDescription>
+              </DialogHeader>
+              <div className="mt-4">
+                <div className="text-xs font-medium text-muted-foreground mb-2">
+                  关联热点
+                </div>
+                <div className="p-3 bg-muted rounded-md text-sm mb-4">
+                  {previewScheduled.platform_content.content_entry.hot_topic
+                    ?.title || "无"}
+                </div>
+                <div className="text-xs font-medium text-muted-foreground mb-2">
+                  内容正文
+                </div>
+                <div className="p-3 bg-muted rounded-md text-sm whitespace-pre-wrap">
+                  {previewScheduled.platform_content.formatted || "暂无内容"}
+                </div>
+                <div className="flex justify-end gap-2 mt-4">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      handleRemoveSchedule(previewScheduled.id);
+                      setPreviewScheduled(null);
+                    }}
+                  >
+                    取消排期
+                  </Button>
+                </div>
+              </div>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
