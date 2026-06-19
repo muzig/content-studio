@@ -74,6 +74,10 @@ function getPlatformColor(platform: string): string {
 
 export default function CalendarPage() {
   const [currentDate, setCurrentDate] = useState(new Date());
+
+  function goToToday() {
+    setCurrentDate(new Date());
+  }
   const [scheduledPosts, setScheduledPosts] = useState<ScheduledPost[]>([]);
   const [pendingContent, setPendingContent] = useState<PendingContent[]>([]);
   const [loading, setLoading] = useState(true);
@@ -207,7 +211,8 @@ export default function CalendarPage() {
   }
 
   const weekDays = ["日", "一", "二", "三", "四", "五", "六"];
-  const todayStr = formatDate(new Date());
+  const today = new Date();
+  const todayStr = formatDate(today);
 
   if (loading) {
     return (
@@ -225,6 +230,14 @@ export default function CalendarPage() {
           发布日历
         </h2>
         <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={goToToday}
+            disabled={`${year}年${month + 1}月` === `${today.getFullYear()}年${today.getMonth() + 1}月`}
+          >
+            今天
+          </Button>
           <Button variant="outline" size="sm" onClick={prevMonth}>
             <ChevronLeft className="h-4 w-4" />
           </Button>
@@ -261,9 +274,13 @@ export default function CalendarPage() {
                   return (
                     <div
                       key={dateStr}
-                      className={`min-h-[100px] border rounded-md p-2 transition-colors ${
+                      className={`min-h-[100px] border-2 rounded-md p-2 transition-colors ${
                         isCurrentMonth ? "bg-background" : "bg-muted/50"
-                      } ${isToday ? "border-primary" : "border-border"}`}
+                      } ${
+                        isToday
+                          ? "border-primary bg-primary/5 ring-2 ring-primary/20"
+                          : "border-border"
+                      }`}
                       onDragOver={(e) => {
                         e.preventDefault();
                         e.currentTarget.classList.add("bg-primary/10");
@@ -278,11 +295,18 @@ export default function CalendarPage() {
                       }}
                     >
                       <div
-                        className={`text-sm mb-1 ${
+                        className={`text-sm mb-1 flex items-center gap-1 ${
                           isCurrentMonth ? "font-medium" : "text-muted-foreground"
                         }`}
                       >
-                        {day.getDate()}
+                        {isToday && (
+                          <span className="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-primary text-primary-foreground">
+                            今
+                          </span>
+                        )}
+                        <span className={isToday ? "font-bold text-primary" : ""}>
+                          {day.getDate()}
+                        </span>
                         {posts.length > 0 && (
                           <Badge variant="secondary" className="ml-1 text-xs">
                             {posts.length}
