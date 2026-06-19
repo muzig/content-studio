@@ -17,7 +17,7 @@ export async function PATCH(
     );
   }
 
-  const record = await prisma.platformPublish.update({
+  const record = await prisma.platformContent.update({
     where: { id },
     data: {
       ...(status && { status }),

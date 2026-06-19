@@ -10,14 +10,15 @@ export async function GET(request: NextRequest) {
   if (status) where.status = status;
   if (platform) where.platform = platform;
 
-  const items = await prisma.platformPublish.findMany({
+  const items = await prisma.platformContent.findMany({
     where,
     include: {
       content_entry: {
         include: {
-          daily_note: true,
+          hot_topic: true,
         },
       },
+      scheduled_post: true,
     },
     orderBy: { updated_at: "desc" },
   });

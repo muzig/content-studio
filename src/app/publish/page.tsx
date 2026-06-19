@@ -19,8 +19,14 @@ interface PublishItem {
   content_entry: {
     title: string | null;
     body: string;
-    daily_note: { date: string };
+    hot_topic: {
+      title: string;
+    } | null;
   };
+  scheduled_post: {
+    scheduled_date: string;
+    scheduled_time: string | null;
+  } | null;
 }
 
 export default function PublishPage() {

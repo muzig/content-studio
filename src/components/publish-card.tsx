@@ -14,8 +14,14 @@ interface PublishItem {
   content_entry: {
     title: string | null;
     body: string;
-    daily_note: { date: string };
+    hot_topic: {
+      title: string;
+    } | null;
   };
+  scheduled_post: {
+    scheduled_date: string;
+    scheduled_time: string | null;
+  } | null;
 }
 
 const PLATFORM_LABELS: Record<string, string> = {
@@ -65,6 +71,7 @@ export function PublishCard({ item }: { item: PublishItem }) {
 
   const title =
     item.content_entry.title ||
+    item.content_entry.hot_topic?.title ||
     item.content_entry.body.slice(0, 20) + (item.content_entry.body.length > 20 ? "..." : "");
 
   return (
@@ -78,9 +85,11 @@ export function PublishCard({ item }: { item: PublishItem }) {
             <Badge variant="secondary" className="text-xs">
               {PLATFORM_LABELS[item.platform] || item.platform}
             </Badge>
-            <span className="text-xs text-muted-foreground">
-              {item.content_entry.daily_note.date}
-            </span>
+            {item.scheduled_post && (
+              <span className="text-xs text-muted-foreground">
+                {item.scheduled_post.scheduled_date}
+              </span>
+            )}
           </div>
           <p className="text-sm font-medium truncate">{title}</p>
           <div className="flex gap-1">
