@@ -24,6 +24,62 @@ HotTopic → ContentEntry → PlatformContent → ScheduledPost
 
 ---
 
+## 设计系统
+
+### 风格：Micro-interactions（微交互）
+
+- 小动画、手势反馈、触觉反馈
+- 适合生产力工具，提升操作手感
+- Light/Dark 双模式支持
+- 关键词：Small animations, gesture-based, tactile feedback, subtle animations
+
+### 配色方案
+
+```
+Primary:     #1E40AF (深蓝 — 专业感)
+On Primary:  #FFFFFF (白色 — 主色上文字)
+Secondary:   #3B82F6 (亮蓝 — 交互元素)
+Accent:      #D97706 (琥珀 — CTA/高亮)
+Background:  #F8FAFC (浅灰白)
+Foreground:  #1E3A8A (深蓝文字)
+Muted:       #E9EEF6 (浅蓝灰)
+Border:      #DBEAFE (淡蓝边框)
+Destructive: #DC2626 (红色 — 删除操作)
+Ring:        #1E40AF (焦点环)
+```
+
+### 字体：Fira Sans + Fira Code
+
+- Fira Sans：正文、UI 元素
+- Fira Code：数据展示、代码相关内容
+- 风格：dashboard, data, analytics, precise
+
+### 图表方案（数据分析页）
+
+- **热力图**：日历格式，冷色(蓝)→暖色(红)渐变，最多 365 格
+- **柱状图**：平台对比，≤5 个平台
+- **折线图**：趋势分析，各平台独立线条
+- **指标卡片**：关键数字 + 趋势箭头
+
+### 交互规范
+
+- 拖拽操作：移动阈值防误触，实时视觉反馈
+- 动画时长：150-300ms，ease-out 进入 / ease-in 退出
+- 触摸目标：≥44×44pt
+- 加载状态：骨架屏（animate-pulse），非空白等待
+- 焦点状态：可见焦点环（2-4px）
+- 无障碍：prefers-reduced-motion 支持
+- 响应式：375px / 768px / 1024px / 1440px 断点
+
+### 图标规范
+
+- 使用 Lucide 图标库（SVG，非 emoji）
+- 统一描边宽度（1.5px 或 2px）
+- 同一层级使用统一风格（filled 或 outline）
+- 图标尺寸：sm=16px, md=20px, lg=24px
+
+---
+
 ## 数据模型
 
 ### HotTopic（热点）
