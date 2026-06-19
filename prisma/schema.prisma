@@ -1,0 +1,44 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model DailyNote {
+  id         String   @id @default(cuid())
+  date       String   @unique
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  entries    ContentEntry[]
+}
+
+model ContentEntry {
+  id            String           @id @default(cuid())
+  daily_note_id String
+  daily_note    DailyNote        @relation(fields: [daily_note_id], references: [id], onDelete: Cascade)
+  sequence      Int
+  title         String?
+  body          String           @default("")
+  created_at    DateTime         @default(now())
+  updated_at    DateTime         @updatedAt
+  platforms     PlatformPublish[]
+
+  @@unique([daily_note_id, sequence])
+}
+
+model PlatformPublish {
+  id               String   @id @default(cuid())
+  content_entry_id String
+  content_entry    ContentEntry @relation(fields: [content_entry_id], references: [id], onDelete: Cascade)
+  platform         String
+  formatted        String   @default("")
+  status           String   @default("draft")
+  published_at     DateTime?
+  created_at       DateTime @default(now())
+  updated_at       DateTime @updatedAt
+
+  @@unique([content_entry_id, platform])
+}
