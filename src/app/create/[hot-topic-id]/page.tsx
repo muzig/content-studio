@@ -8,7 +8,15 @@ import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Save, Sparkles, RefreshCw } from "lucide-react";
+import {
+  ArrowLeft,
+  Save,
+  Sparkles,
+  RefreshCw,
+  Loader2,
+  CheckCircle2,
+  AlertCircle,
+} from "lucide-react";
 
 interface HotTopic {
   id: string;
@@ -33,6 +41,12 @@ interface Entry {
   platforms: PlatformContent[];
 }
 
+interface GenerationStatus {
+  platform: string;
+  status: "pending" | "generating" | "success" | "error";
+  message?: string;
+}
+
 export default function CreatePage() {
   const params = useParams();
   const router = useRouter();
@@ -46,6 +60,17 @@ export default function CreatePage() {
   const [title, setTitle] = useState("");
   const [comment, setComment] = useState("");
   const [activeTab, setActiveTab] = useState("tweets");
+  const [generationStatus, setGenerationStatus] = useState<GenerationStatus[]>(
+    []
+  );
+  const [error, setError] = useState<string | null>(null);
+
+  const PLATFORMS = ["tweets", "xiaohongshu", "zhihu"];
+  const PLATFORM_LABELS: Record<string, string> = {
+    tweets: "推文",
+    xiaohongshu: "小红书",
+    zhihu: "知乎",
+  };
 
   const fetchData = useCallback(async () => {
     try {
@@ -112,6 +137,8 @@ export default function CreatePage() {
   }
 
   async function handleGenerate() {
+    setError(null);
+
     if (!entry) {
       await handleSave();
     }
@@ -120,20 +147,42 @@ export default function CreatePage() {
     if (!entryId) return;
 
     setGenerating(true);
+    setGenerationStatus(
+      PLATFORMS.map((p) => ({ platform: p, status: "pending" }))
+    );
+
     try {
       const res = await fetch(`/api/entries/${entryId}/generate`, {
         method: "POST",
       });
+
       if (res.ok) {
         const data = await res.json();
         setEntry((prev) =>
           prev ? { ...prev, platforms: data.platforms } : prev
         );
+        setGenerationStatus((prev) =>
+          prev.map((s) => ({ ...s, status: "success" }))
+        );
+      } else {
+        const errorData = await res.json().catch(() => ({}));
+        const errorMessage = errorData.error || `生成失败 (${res.status})`;
+        setError(errorMessage);
+        setGenerationStatus((prev) =>
+          prev.map((s) => ({ ...s, status: "error", message: errorMessage }))
+        );
       }
     } catch (error) {
-      console.error("Error generating:", error);
+      const message = error instanceof Error ? error.message : "网络错误";
+      setError(message);
+      setGenerationStatus((prev) =>
+        prev.map((s) => ({ ...s, status: "error", message }))
+      );
     } finally {
-      setGenerating(false);
+      setTimeout(() => {
+        setGenerating(false);
+        setGenerationStatus([]);
+      }, 2000);
     }
   }
 
@@ -141,12 +190,21 @@ export default function CreatePage() {
     if (!entry) return;
 
     setGenerating(true);
+    setError(null);
+    setGenerationStatus(
+      PLATFORMS.map((p) => ({
+        platform: p,
+        status: p === platform ? "generating" : "pending",
+      }))
+    );
+
     try {
       const res = await fetch(`/api/entries/${entry.id}/generate`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ platforms: [platform] }),
       });
+
       if (res.ok) {
         const data = await res.json();
         setEntry((prev) => {
@@ -156,21 +214,37 @@ export default function CreatePage() {
           );
           return { ...prev, platforms: updatedPlatforms };
         });
+        setGenerationStatus((prev) =>
+          prev.map((s) =>
+            s.platform === platform ? { ...s, status: "success" } : s
+          )
+        );
+      } else {
+        const errorData = await res.json().catch(() => ({}));
+        const errorMessage = errorData.error || "重新生成失败";
+        setError(errorMessage);
+        setGenerationStatus((prev) =>
+          prev.map((s) =>
+            s.platform === platform
+              ? { ...s, status: "error", message: errorMessage }
+              : s
+          )
+        );
       }
     } catch (error) {
-      console.error("Error regenerating:", error);
+      const message = error instanceof Error ? error.message : "网络错误";
+      setError(message);
+      setGenerationStatus((prev) =>
+        prev.map((s) =>
+          s.platform === platform ? { ...s, status: "error", message } : s
+        )
+      );
     } finally {
-      setGenerating(false);
+      setTimeout(() => {
+        setGenerating(false);
+        setGenerationStatus([]);
+      }, 2000);
     }
-  }
-
-  function getPlatformLabel(platform: string): string {
-    const labels: Record<string, string> = {
-      tweets: "推文",
-      xiaohongshu: "小红书",
-      zhihu: "知乎",
-    };
-    return labels[platform] || platform;
   }
 
   if (loading) {
@@ -236,6 +310,7 @@ export default function CreatePage() {
                 placeholder="内容标题（可选）"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
+                disabled={generating}
               />
             </div>
             <div>
@@ -247,13 +322,14 @@ export default function CreatePage() {
                 value={comment}
                 onChange={(e) => setComment(e.target.value)}
                 rows={6}
+                disabled={generating}
               />
               <p className="text-xs text-muted-foreground mt-1">
                 写得越多，AI 越侧重润色；写得越少，AI 越会展开创作
               </p>
             </div>
             <div className="flex gap-2">
-              <Button onClick={handleSave} disabled={saving} className="flex-1">
+              <Button onClick={handleSave} disabled={saving || generating} className="flex-1">
                 <Save className="h-4 w-4 mr-2" />
                 {saving ? "保存中..." : "保存草稿"}
               </Button>
@@ -262,10 +338,56 @@ export default function CreatePage() {
                 disabled={generating}
                 className="flex-1"
               >
-                <Sparkles className="h-4 w-4 mr-2" />
-                {generating ? "生成中..." : "生成全部平台"}
+                {generating ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    生成中...
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="h-4 w-4 mr-2" />
+                    生成全部平台
+                  </>
+                )}
               </Button>
             </div>
+
+            {generating && generationStatus.length > 0 && (
+              <div className="mt-4 p-3 bg-muted rounded-md space-y-2">
+                <p className="text-sm font-medium">生成进度</p>
+                {generationStatus.map((s) => (
+                  <div key={s.platform} className="flex items-center gap-2 text-sm">
+                    {s.status === "pending" && (
+                      <Loader2 className="h-3 w-3 animate-spin text-muted-foreground" />
+                    )}
+                    {s.status === "generating" && (
+                      <Loader2 className="h-3 w-3 animate-spin text-blue-500" />
+                    )}
+                    {s.status === "success" && (
+                      <CheckCircle2 className="h-3 w-3 text-green-500" />
+                    )}
+                    {s.status === "error" && (
+                      <AlertCircle className="h-3 w-3 text-red-500" />
+                    )}
+                    <span>
+                      {PLATFORM_LABELS[s.platform]}
+                      {s.status === "generating" && " - 生成中..."}
+                      {s.status === "success" && " - 完成"}
+                      {s.status === "error" && ` - 失败: ${s.message}`}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {error && !generating && (
+              <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-md">
+                <div className="flex items-center gap-2">
+                  <AlertCircle className="h-4 w-4 text-red-500" />
+                  <p className="text-sm text-red-700">{error}</p>
+                </div>
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>
@@ -280,7 +402,7 @@ export default function CreatePage() {
               <TabsList>
                 {entry.platforms.map((p) => (
                   <TabsTrigger key={p.platform} value={p.platform}>
-                    {getPlatformLabel(p.platform)}
+                    {PLATFORM_LABELS[p.platform]}
                   </TabsTrigger>
                 ))}
               </TabsList>
@@ -309,8 +431,17 @@ export default function CreatePage() {
                         onClick={() => handleRegeneratePlatform(p.platform)}
                         disabled={generating}
                       >
-                        <RefreshCw className="h-4 w-4 mr-2" />
-                        重新生成
+                        {generating ? (
+                          <>
+                            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                            生成中...
+                          </>
+                        ) : (
+                          <>
+                            <RefreshCw className="h-4 w-4 mr-2" />
+                            重新生成
+                          </>
+                        )}
                       </Button>
                     </div>
                     <div className="bg-muted p-4 rounded-md whitespace-pre-wrap text-sm">

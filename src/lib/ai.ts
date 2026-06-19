@@ -71,8 +71,10 @@ export async function generateForPlatform(
     buildPrompt({ hotTopic, userComment, platformRule })
   );
 
+  const model = process.env.ANTHROPIC_MODEL || "claude-3-5-sonnet-20241022";
+
   const message = await anthropic.messages.create({
-    model: "claude-sonnet-4-20250514",
+    model,
     max_tokens: 4096,
     system,
     messages: [{ role: "user", content: user }],
@@ -93,8 +95,9 @@ export async function generateForAllPlatforms(
         const content = await generateForPlatform(hotTopic, userComment, rule);
         return { platform: rule.platform, content };
       } catch (error) {
-        console.error(`Error generating for ${rule.platform}:`, error);
-        return { platform: rule.platform, content: "" };
+        const message = error instanceof Error ? error.message : String(error);
+        console.error(`Error generating for ${rule.platform}:`, message);
+        throw new Error(`生成 ${rule.label} 内容失败: ${message}`);
       }
     })
   );
