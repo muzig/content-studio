@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>工程化 — Content Studio 技术路线图</title>
+  <link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+  <div class="container">
+    <p><a href="../index.html">← 返回路线图</a></p>
+    <h1>🛠️ 工程化</h1>
+    <span class="badge badge-green">已知</span>
+
+    <h2>是什么</h2>
+    <p>本节汇总项目里不属于主流程、但属于工程基础设施的工具：包管理 pnpm、ESLint 代码检查、tsx（用 TS 直接跑 Node 脚本）、dotenv 环境变量加载。</p>
+
+    <h2>为什么这个项目要用它</h2>
+    <p>pnpm 快、省磁盘；ESLint 兜底代码风格；tsx 让 <code>prisma/seed.ts</code> 这种 TS 脚本能直接 <code>node</code> 跑；dotenv 让 <code>.env</code> 里的密钥进 <code>process.env</code>。</p>
+    <p>项目里的实际位置：</p>
+    <ul>
+      <li><code>pnpm-workspace.yaml</code> — pnpm workspace 配置</li>
+      <li><code>eslint.config.mjs</code> — ESLint 9 flat config</li>
+      <li><code>prisma/seed.ts</code> — 用 tsx 跑的种子脚本</li>
+      <li><code>.env</code> + <code>src/lib/prisma.ts</code> 里的 <code>process.env.DATABASE_URL</code></li>
+    </ul>
+
+    <h2>核心概念</h2>
+
+    <h3>1. pnpm</h3>
+    <p>Node 包管理工具，比 npm 快、磁盘省（用 hard link 共享依赖）。本项目所有命令都用 <code>pnpm</code>：</p>
+    <pre class="code-block"><code>pnpm install              <span class="com"># 装依赖</span>
+pnpm dev                  <span class="com"># 启动 Next.js dev server</span>
+pnpm build                <span class="com"># 生产构建</span>
+pnpm lint                 <span class="com"># ESLint 检查</span>
+pnpm db:seed              <span class="com"># 跑 prisma/seed.ts</span>
+pnpm roadmap              <span class="com"># 本路线图文档站（serve docs/roadmap）</span></code></pre>
+
+    <h3>2. ESLint 9 Flat Config</h3>
+    <p>v9 改用 <code>eslint.config.mjs</code>（ESM 模块），不再是 <code>.eslintrc.json</code>：</p>
+    <pre class="code-block"><code><span class="com">// eslint.config.mjs</span>
+<span class="kw">import</span> { defineConfig, globalIgnores } <span class="kw">from</span> <span class="str">"eslint/config"</span>;
+<span class="kw">import</span> nextVitals <span class="kw">from</span> <span class="str">"eslint-config-next/core-web-vitals"</span>;
+<span class="kw">import</span> nextTs <span class="kw">from</span> <span class="str">"eslint-config-next/typescript"</span>;
+
+<span class="kw">export default</span> defineConfig([
+  ...nextVitals,
+  ...nextTs,
+  globalIgnores([<span class="str">".next/**"</span>, <span class="str">"out/**"</span>, <span class="str">"next-env.d.ts"</span>]),
+]);</code></pre>
+    <p>继承 Next.js 官方的 React + TS 规则集。</p>
+
+    <h3>3. tsx — 用 TS 直接跑 Node</h3>
+    <p>普通 Node 只能跑 <code>.js</code>，<code>tsx</code> 包装了 esbuild 让 <code>.ts</code> 直接执行：</p>
+    <pre class="code-block"><code><span class="com"># package.json</span>
+{
+  <span class="str">"scripts"</span>: {
+    <span class="str">"db:seed"</span>: <span class="str">"tsx prisma/seed.ts"</span>
+  }
+}</code></pre>
+    <p>本项目用 tsx 跑 <code>prisma/seed.ts</code>（含 Prisma 类型）。</p>
+
+    <h3>4. dotenv</h3>
+    <p>Node 默认不读 <code>.env</code>，<code>dotenv</code> 在脚本入口处 <code>import "dotenv/config"</code> 即可：</p>
+    <pre class="code-block"><code><span class="com">// prisma/seed.ts 顶部</span>
+<span class="kw">import</span> <span class="str">"dotenv/config"</span>;
+
+<span class="com">// 现在 process.env.DATABASE_URL 可用</span></code></pre>
+    <p>Next.js 自动读 <code>.env</code>，不需要手动 import。</p>
+
+    <h2>最小可运行示例</h2>
+    <pre class="code-block"><code><span class="com"># scripts/print-env.ts</span>
+<span class="kw">import</span> <span class="str">"dotenv/config"</span>;
+console.log(<span class="str">`DB: ${process.env.DATABASE_URL}`</span>);
+
+<span class="com"># 跑</span>
+npx tsx scripts/print-env.ts</code></pre>
+
+    <h2>下一步学什么</h2>
+    <ul>
+      <li>Prisma 命令链 → <a href="./06-prisma.html">06 · Prisma</a></li>
+      <li>Next.js dev / build → <a href="./01-nextjs.html">01 · Next.js</a></li>
+      <li>pnpm 文档：<a href="https://pnpm.io" target="_blank" rel="noopener noreferrer">pnpm.io</a></li>
+    </ul>
+
+    <p class="back-link"><a href="../index.html">🔙 返回路线图</a></p>
+  </div>
+</body>
+</html>
