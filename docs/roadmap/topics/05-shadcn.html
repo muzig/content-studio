@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>shadcn/ui — Content Studio 技术路线图</title>
+  <link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+  <div class="container">
+    <p><a href="../index.html">← 返回路线图</a></p>
+    <h1>🧩 shadcn/ui</h1>
+    <span class="badge badge-yellow">重点学</span>
+
+    <h2>是什么</h2>
+    <p>shadcn/ui 不是一个 npm 包，而是一套「复制源码到项目里」的组件库。你想要哪个组件，就 <code>npx shadcn add button</code> 把源码贴进 <code>src/components/ui/</code>。完全可改、可拥有。</p>
+
+    <h2>为什么这个项目要用它</h2>
+    <p>本项目用 shadcn 提供 9 个原子组件（Button / Card / Dialog / Input / Select / Tabs / Textarea / Tooltip / Badge）。底层是 <strong>Base UI</strong>（<code>@base-ui/react</code>）+ Tailwind + class-variance-authority。</p>
+    <p>项目里的实际位置：</p>
+    <ul>
+      <li><code>src/components/ui/</code> — 9 个手写组件文件</li>
+      <li><code>components.json</code> — shadcn 配置（风格 base-nova、中性色）</li>
+      <li><code>src/lib/utils.ts</code> — <code>cn()</code> 工具函数</li>
+    </ul>
+
+    <h2>核心概念</h2>
+
+    <h3>1. CVA（Class Variance Authority）</h3>
+    <p>用对象定义 variant（如 primary/ghost/outline），运行时根据 props 拼 class：</p>
+    <pre class="code-block"><code><span class="com">// src/components/ui/button.tsx 摘录</span>
+<span class="kw">import</span> { cva } <span class="kw">from</span> <span class="str">"class-variance-authority"</span>;
+
+<span class="kw">const</span> buttonVariants = cva(
+  <span class="str">"rounded-lg border ..."</span>,
+  {
+    variants: {
+      variant: {
+        default: <span class="str">"bg-primary text-primary-foreground"</span>,
+        outline: <span class="str">"border-border bg-background hover:bg-muted"</span>,
+        ghost: <span class="str">"hover:bg-muted"</span>,
+      },
+      size: {
+        default: <span class="str">"h-8 px-2.5"</span>,
+        sm: <span class="str">"h-7 text-xs"</span>,
+        lg: <span class="str">"h-9 px-2.5"</span>,
+      },
+    },
+    defaultVariants: { variant: <span class="str">"default"</span>, size: <span class="str">"default"</span> },
+  }
+);</code></pre>
+
+    <h3>2. cn() = clsx + tailwind-merge</h3>
+    <pre class="code-block"><code><span class="com">// src/lib/utils.ts</span>
+<span class="kw">import</span> { clsx } <span class="kw">from</span> <span class="str">"clsx"</span>;
+<span class="kw">import</span> { twMerge } <span class="kw">from</span> <span class="str">"tailwind-merge"</span>;
+
+<span class="kw">export function</span> cn(...inputs) {
+  <span class="kw">return</span> twMerge(clsx(inputs));
+}</code></pre>
+    <p><code>cn("p-2", cond && "p-4")</code> 会智能合并 Tailwind 类，后写的覆盖前写的（<code>twMerge</code> 解析冲突）。</p>
+
+    <h3>3. Base UI 提供无样式原语</h3>
+    <p><code>@base-ui/react/button</code> 等组件只管行为（a11y、键盘、焦点），样式完全自己写。shadcn 在上面包一层 Tailwind。</p>
+
+    <h3>4. 添加新组件</h3>
+    <pre class="code-block"><code><span class="com"># 命令行（项目已配 components.json）</span>
+npx shadcn@latest add dialog
+
+<span class="com"># 源码会贴到 src/components/ui/dialog.tsx</span></code></pre>
+
+    <h2>最小可运行示例</h2>
+    <pre class="code-block"><code><span class="kw">import</span> { Button } <span class="kw">from</span> <span class="str">"@/components/ui/button"</span>;
+
+&lt;<span class="kw">Button</span> variant=<span class="str">"outline"</span> size=<span class="str">"sm"</span>&gt;取消&lt;/<span class="kw">Button</span>&gt;
+&lt;<span class="kw">Button</span>&gt;确认&lt;/<span class="kw">Button</span>&gt;</code></pre>
+
+    <h2>下一步学什么</h2>
+    <ul>
+      <li>样式系统 → <a href="./04-tailwind.html">04 · Tailwind CSS v4</a></li>
+      <li>图标 → lucide-react（<code>import { Search } from "lucide-react"</code>）</li>
+      <li>官方文档：<a href="https://ui.shadcn.com" target="_blank" rel="noopener noreferrer">ui.shadcn.com</a></li>
+    </ul>
+
+    <p class="back-link"><a href="../index.html">🔙 返回路线图</a></p>
+  </div>
+</body>
+</html>
