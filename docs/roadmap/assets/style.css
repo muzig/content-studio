@@ -1,0 +1,182 @@
+:root {
+  --background: #FAF8F5;
+  --foreground: #2C2420;
+  --card: #FFFFFF;
+  --card-foreground: #2C2420;
+  --primary: #C4654A;
+  --primary-foreground: #FAF8F5;
+  --secondary: #F5F0EA;
+  --secondary-foreground: #2C2420;
+  --muted: #F5F0EA;
+  --muted-foreground: #A89888;
+  --accent: #F5F0EA;
+  --accent-foreground: #2C2420;
+  --border: #E8E0D8;
+  --radius: 0.5rem;
+  --code-bg: #F5F0EA;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #1A1614;
+    --foreground: #E8E0D8;
+    --card: #2A2420;
+    --card-foreground: #E8E0D8;
+    --primary: #D4765E;
+    --primary-foreground: #1A1614;
+    --secondary: #2A2420;
+    --secondary-foreground: #E8E0D8;
+    --muted: #2A2420;
+    --muted-foreground: #7A6E64;
+    --accent: #2A2420;
+    --accent-foreground: #E8E0D8;
+    --border: #3A3430;
+    --code-bg: #2A2420;
+  }
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: var(--background);
+  color: var(--foreground);
+  font-family: system-ui, -apple-system, "PingFang SC", "Microsoft YaHei", "Noto Sans CJK SC", sans-serif;
+  font-size: 16px;
+  line-height: 1.7;
+}
+
+.container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem;
+}
+
+h1, h2, h3, h4 {
+  color: var(--foreground);
+  font-weight: 600;
+  line-height: 1.3;
+  margin: 1.5em 0 0.5em;
+}
+
+h1 { font-size: 1.875rem; }
+h2 { font-size: 1.375rem; border-bottom: 1px solid var(--border); padding-bottom: 0.3em; }
+h3 { font-size: 1.125rem; }
+
+p { margin: 0.8em 0; }
+
+a {
+  color: var(--primary);
+  text-decoration: none;
+}
+a:hover { text-decoration: underline; }
+
+ul, ol { padding-left: 1.5em; }
+li { margin: 0.3em 0; }
+
+.card {
+  display: block;
+  background: var(--card);
+  color: var(--card-foreground);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.25rem;
+  text-decoration: none;
+  transition: border-color 0.15s, transform 0.15s;
+}
+.card:hover {
+  border-color: var(--primary);
+  text-decoration: none;
+  transform: translateY(-2px);
+}
+.card h3 { margin: 0 0 0.4em; color: var(--foreground); }
+.card p { margin: 0; color: var(--muted-foreground); font-size: 0.9rem; }
+.card .badge { margin-top: 0.8em; }
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1rem;
+}
+
+.badge {
+  display: inline-block;
+  padding: 0.15em 0.6em;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  border: 1px solid var(--border);
+  background: var(--secondary);
+  color: var(--secondary-foreground);
+}
+.badge-green {
+  background: rgba(34, 197, 94, 0.12);
+  border-color: rgba(34, 197, 94, 0.4);
+  color: rgb(21, 128, 61);
+}
+.badge-yellow {
+  background: rgba(234, 179, 8, 0.12);
+  border-color: rgba(234, 179, 8, 0.4);
+  color: rgb(161, 98, 7);
+}
+.badge-gray {
+  background: var(--muted);
+  border-color: var(--border);
+  color: var(--muted-foreground);
+}
+@media (prefers-color-scheme: dark) {
+  .badge-green { color: rgb(134, 239, 172); }
+  .badge-yellow { color: rgb(253, 224, 71); }
+}
+
+.code-block {
+  display: block;
+  background: var(--code-bg);
+  color: var(--foreground);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1rem;
+  overflow-x: auto;
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-size: 0.85rem;
+  line-height: 1.6;
+  margin: 1em 0;
+}
+.code-block .kw { color: var(--primary); font-weight: 600; }
+.code-block .str { color: rgb(21, 128, 61); }
+.code-block .com { color: var(--muted-foreground); font-style: italic; }
+@media (prefers-color-scheme: dark) {
+  .code-block .str { color: rgb(134, 239, 172); }
+}
+
+.note {
+  background: var(--accent);
+  border-left: 3px solid var(--primary);
+  padding: 0.8em 1em;
+  border-radius: 0 var(--radius) var(--radius) 0;
+  margin: 1em 0;
+}
+.note p { margin: 0; }
+
+.back-link {
+  display: inline-block;
+  margin-top: 2rem;
+  font-size: 0.9rem;
+}
+
+.legend {
+  margin-top: 2rem;
+  padding: 1rem;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+.legend h3 { margin-top: 0; }
+.legend ul { list-style: none; padding-left: 0; }
+
+@media (max-width: 640px) {
+  .container { padding: 1.5rem 1rem; }
+  h1 { font-size: 1.5rem; }
+  .grid { grid-template-columns: 1fr; }
+}

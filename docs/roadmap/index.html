@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Content Studio 技术路线图</title>
+  <link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+  <div class="container">
+    <h1>🗺️ Content Studio 技术路线图</h1>
+    <p>本项目用到的全部技术集合。每张卡片点击进入详细讲解，面向具备后端能力但不熟悉前端的开发者。</p>
+
+    <h2>技术清单</h2>
+    <div class="grid">
+      <a class="card" href="topics/01-nextjs.html">
+        <h3>🚀 01 · Next.js App Router</h3>
+        <p>React 全栈框架，本项目的骨架与路由机制</p>
+        <span class="badge badge-yellow">重点学</span>
+      </a>
+      <a class="card" href="topics/02-react.html">
+        <h3>⚛️ 02 · React 19</h3>
+        <p>UI 组件库基础，理解 Server Component 与 Hook</p>
+        <span class="badge badge-yellow">重点学</span>
+      </a>
+      <a class="card" href="topics/03-typescript.html">
+        <h3>📘 03 · TypeScript</h3>
+        <p>类型系统如何在 Next.js 项目里配置与使用</p>
+        <span class="badge badge-yellow">重点学</span>
+      </a>
+      <a class="card" href="topics/04-tailwind.html">
+        <h3>🎨 04 · Tailwind CSS v4</h3>
+        <p>原子化 CSS 框架，v4 配置重大变更</p>
+        <span class="badge badge-yellow">重点学</span>
+      </a>
+      <a class="card" href="topics/05-shadcn.html">
+        <h3>🧩 05 · shadcn/ui</h3>
+        <p>可复制源码的组件体系，基于 Base UI + CVA</p>
+        <span class="badge badge-yellow">重点学</span>
+      </a>
+      <a class="card" href="topics/06-prisma.html">
+        <h3>🗄️ 06 · Prisma + better-sqlite3</h3>
+        <p>类型安全的 ORM，本项目数据访问层</p>
+        <span class="badge badge-green">已知</span>
+      </a>
+      <a class="card" href="topics/07-anthropic.html">
+        <h3>🤖 07 · Anthropic SDK</h3>
+        <p>调用 Claude 模型生成平台化内容</p>
+        <span class="badge badge-green">已知</span>
+      </a>
+      <a class="card" href="topics/08-engineering.html">
+        <h3>🛠️ 08 · 工程化</h3>
+        <p>pnpm、ESLint、tsx 脚本工具链</p>
+        <span class="badge badge-green">已知</span>
+      </a>
+    </div>
+
+    <div class="legend">
+      <h3>状态徽章</h3>
+      <ul>
+        <li><span class="badge badge-green">已知</span> 后端相关，你已掌握可快速浏览</li>
+        <li><span class="badge badge-yellow">重点学</span> 前端 / 新版本相关，建议精读</li>
+        <li><span class="badge badge-gray">待学</span> 未来补充，当前留空</li>
+      </ul>
+    </div>
+
+    <div class="legend">
+      <h3>如何扩展新 topic</h3>
+      <ol>
+        <li>复制 <code>topics/00-template.html</code> → 改名（如 <code>09-newtech.html</code>）</li>
+        <li>按五段式（是什么 / 为什么用 / 核心概念 / 示例 / 下一步）填内容</li>
+        <li>在 index.html 卡片网格追加一张卡片</li>
+      </ol>
+    </div>
+
+    <div class="legend">
+      <h3>本地启动</h3>
+      <pre class="code-block"><code><span class="com"># 安装依赖（首次）</span>
+pnpm install
+
+<span class="com"># 启动文档站点</span>
+pnpm roadmap
+<span class="com"># → http://localhost:3001</span></code></pre>
+    </div>
+  </div>
+</body>
+</html>
