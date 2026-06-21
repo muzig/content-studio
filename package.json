@@ -8,7 +8,7 @@
     "start": "next start",
     "lint": "eslint",
     "db:seed": "tsx prisma/seed.ts",
-    "roadmap": "serve docs/roadmap -l 3001 -c serve.json"
+    "roadmap": "serve docs/roadmap -l 3001"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.105.0",
