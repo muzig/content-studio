@@ -21,7 +21,7 @@
     <ul>
       <li><code>src/lib/ai.ts</code> — Anthropic 客户端 + 平台化生成函数</li>
       <li><code>.env</code> — <code>ANTHROPIC_API_KEY</code> / <code>ANTHROPIC_BASE_URL</code> / <code>ANTHROPIC_MODEL</code></li>
-      <li><code>src/app/api/generate/route.ts</code>（如果存在）— 暴露给前端的 HTTP 接口</li>
+      <li><code>src/app/api/entries/[id]/generate/route.ts</code> — 暴露给前端的 HTTP 接口（被 <code>daily/[date]/page.tsx</code> 调用）</li>
     </ul>
 
     <h2>核心概念</h2>
