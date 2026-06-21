@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Prisma + better-sqlite3 — Content Studio 技术路线图</title>
+  <link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+  <div class="container">
+    <p><a href="../index.html">← 返回路线图</a></p>
+    <h1>🗄️ Prisma + better-sqlite3</h1>
+    <span class="badge badge-green">已知</span>
+
+    <h2>是什么</h2>
+    <p>Prisma 是 TypeScript 优先的 ORM：用 <code>schema.prisma</code> 定义模型，自动生成类型安全的客户端。本项目用 SQLite（<code>prisma/dev.db</code>）+ Prisma 7 + better-sqlite3 驱动。</p>
+
+    <h2>为什么这个项目要用它</h2>
+    <p>数据库 schema 跟 TypeScript 类型严格对齐，重构 schema 后所有调用点编译报错，零运行时类型错误。SQLite 适合单机 / 个人项目，零运维。</p>
+    <p>项目里的实际位置：</p>
+    <ul>
+      <li><code>prisma/schema.prisma</code> — 数据模型定义（7 张表）</li>
+      <li><code>src/lib/prisma.ts</code> — PrismaClient 单例 + better-sqlite3 适配器</li>
+      <li><code>src/generated/prisma/</code> — 自动生成的客户端（gitignored）</li>
+      <li><code>prisma/migrations/</code> — 数据库迁移历史</li>
+      <li><code>prisma/seed.ts</code> — 种子数据脚本</li>
+    </ul>
+
+    <h2>核心概念</h2>
+
+    <h3>1. schema.prisma</h3>
+    <pre class="code-block"><code><span class="com">// prisma/schema.prisma 摘录</span>
+datasource db {
+  provider = <span class="str">"sqlite"</span>
+}
+
+model HotTopic {
+  id         String   @id @default(cuid())
+  title      String
+  source     String   @default(<span class="str">"manual"</span>)
+  content    String   @default(<span class="str">""</span>)
+  created_at DateTime @default(now())
+  entries    ContentEntry[]
+}</code></pre>
+
+    <h3>2. 单例 + Adapter 模式</h3>
+    <p>PrismaClient 在 dev 热重载时会反复实例化，所以用 globalThis 缓存。v7 强制走 Adapter：</p>
+    <pre class="code-block"><code><span class="com">// src/lib/prisma.ts</span>
+<span class="kw">import</span> { PrismaClient } <span class="kw">from</span> <span class="str">"@/generated/prisma/client"</span>;
+<span class="kw">import</span> { PrismaBetterSqlite3 } <span class="kw">from</span> <span class="str">"@prisma/adapter-better-sqlite3"</span>;
+
+<span class="kw">const</span> globalForPrisma = globalThis <span class="kw">as</span> <span class="kw">unknown</span> { prisma: PrismaClient };
+
+<span class="kw">function</span> createPrismaClient() {
+  <span class="kw">const</span> adapter = <span class="kw">new</span> PrismaBetterSqlite3({
+    url: process.env.DATABASE_URL || <span class="str">"file:./prisma/dev.db"</span>,
+  });
+  <span class="kw">return new</span> PrismaClient({ adapter });
+}
+
+<span class="kw">export const</span> prisma = globalForPrisma.prisma || createPrismaClient();
+<span class="kw">if</span> (process.env.NODE_ENV !== <span class="str">"production"</span>) globalForPrisma.prisma = prisma;</code></pre>
+
+    <h3>3. 常用查询</h3>
+    <pre class="code-block"><code><span class="com">// 查全部</span>
+<span class="kw">const</span> topics = <span class="kw">await</span> prisma.hotTopic.findMany();
+
+<span class="com">// 条件 + 关联</span>
+<span class="kw">const</span> entry = <span class="kw">await</span> prisma.contentEntry.findUnique({
+  where: { id },
+  include: { platforms: <span class="kw">true</span>, hot_topic: <span class="kw">true</span> },
+});
+
+<span class="com">// 创建</span>
+<span class="kw">await</span> prisma.hotTopic.create({ data: { title, source: <span class="str">"manual"</span> } });</code></pre>
+
+    <h3>4. 迁移与生成</h3>
+    <pre class="code-block"><code><span class="com"># schema 改完后</span>
+pnpm prisma migrate dev      <span class="com"># 生成迁移文件 + 应用 + 重生客户端</span>
+
+<span class="com"># 仅重生客户端（schema 没改但 import 报错）</span>
+pnpm prisma generate</code></pre>
+
+    <h2>最小可运行示例</h2>
+    <p>完整 API Route 调用 Prisma：</p>
+    <pre class="code-block"><code><span class="com">// src/app/api/hot-topics/route.ts</span>
+<span class="kw">import</span> { NextRequest, NextResponse } <span class="kw">from</span> <span class="str">"next/server"</span>;
+<span class="kw">import</span> { prisma } <span class="kw">from</span> <span class="str">"@/lib/prisma"</span>;
+
+<span class="kw">export async function</span> GET(request: NextRequest) {
+  <span class="kw">const</span> hotTopics = <span class="kw">await</span> prisma.hotTopic.findMany({ orderBy: { created_at: <span class="str">"desc"</span> } });
+  <span class="kw">return</span> NextResponse.json({ hotTopics });
+}</code></pre>
+
+    <h2>下一步学什么</h2>
+    <ul>
+      <li>API 路由写法 → <a href="./01-nextjs.html">01 · Next.js</a></li>
+      <li>类型如何同步 → <a href="./03-typescript.html">03 · TypeScript</a></li>
+      <li>官方文档：<a href="https://www.prisma.io/docs" target="_blank" rel="noopener noreferrer">prisma.io/docs</a></li>
+    </ul>
+
+    <p class="back-link"><a href="../index.html">🔙 返回路线图</a></p>
+  </div>
+</body>
+</html>
