@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>React 19 — Content Studio 技术路线图</title>
+  <link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+  <div class="container">
+    <p><a href="../index.html">← 返回路线图</a></p>
+    <h1>⚛️ React 19</h1>
+    <span class="badge badge-yellow">重点学</span>
+
+    <h2>是什么</h2>
+    <p>React 是 Facebook 开源的 UI 库，用「组件」描述界面、用「状态」驱动更新。本项目用 React 19.2（package.json）。Next.js 的页面和组件本质上都是 React 组件。</p>
+
+    <h2>为什么这个项目要用它</h2>
+    <p>所有交互 UI 都是 React 组件：Sidebar、Card、Dialog、Button 等。Next.js App Router 只是路由层，渲染出来的还是 React。</p>
+    <p>项目里的实际位置：</p>
+    <ul>
+      <li><code>src/components/</code> — 所有 React 组件</li>
+      <li><code>src/components/ui/</code> — shadcn 提供的原子组件（Button、Dialog…）</li>
+    </ul>
+
+    <h2>核心概念</h2>
+
+    <h3>1. 组件 = 函数</h3>
+    <p>一个 React 组件就是一个返回 JSX 的函数。大写开头、返回 HTML-like 结构。</p>
+    <pre class="code-block"><code><span class="kw">function</span> Greeting({ name }: { name: <span class="kw">string</span> }) {
+  <span class="kw">return</span> &lt;<span class="kw">h1</span>&gt;Hello, {name}&lt;/<span class="kw">h1</span>&gt;;
+}
+
+<span class="com">// 使用</span>
+&lt;<span class="kw">Greeting</span> name=<span class="str">"World"</span> /&gt;</code></pre>
+
+    <h3>2. JSX = HTML + {} 表达式</h3>
+    <p>JSX 是 JavaScript 的语法扩展，<code>{}</code> 里能写任意 JS 表达式。</p>
+    <pre class="code-block"><code><span class="kw">const</span> items = [<span class="str">"a"</span>, <span class="str">"b"</span>, <span class="str">"c"</span>];
+<span class="kw">return</span> (
+  &lt;<span class="kw">ul</span>&gt;
+    {items.map(item =&gt; &lt;<span class="kw">li</span> key={item}&gt;{item}&lt;/<span class="kw">li</span>)}
+  &lt;/<span class="kw">ul</span>&gt;
+);</code></pre>
+
+    <h3>3. Hook：useState / useEffect</h3>
+    <p>Hook 是 React 函数组件里的「钩子」，让你接入状态和生命周期。本项目常用的：</p>
+    <pre class="code-block"><code><span class="str">"use client"</span>;
+<span class="kw">import</span> { useState, useEffect } <span class="kw">from</span> <span class="str">"react"</span>;
+
+<span class="kw">function</span> Counter() {
+  <span class="kw">const</span> [count, setCount] = useState(<span class="str">0</span>);
+  useEffect(() =&gt; {
+    document.title = <span class="str">`计数：${count}`</span>;
+  }, [count]);
+  <span class="kw">return</span> &lt;<span class="kw">button</span> onClick={() =&gt; setCount(count + <span class="str">1</span>)}&gt;{count}&lt;/<span class="kw">button</span>&gt;;
+}</code></pre>
+
+    <h3>4. "use client" 指令</h3>
+    <p>Next.js 默认服务端渲染。要用 <code>useState</code> / <code>onClick</code> / 浏览器 API，必须在文件顶部加 <code>"use client"</code>，告诉 Next.js 把这组件发到浏览器执行。</p>
+    <div class="note">
+      <p><strong>经验法则：</strong>尽量保持服务端组件，只把需要交互的子组件标 Client。本项目 <code>sidebar.tsx</code> / <code>hot-topic-form.tsx</code> 等是 Client。</p>
+    </div>
+
+    <h2>最小可运行示例</h2>
+    <p>改 <code>src/app/hello/page.tsx</code> 为交互组件：</p>
+    <pre class="code-block"><code><span class="str">"use client"</span>;
+<span class="kw">import</span> { useState } <span class="kw">from</span> <span class="str">"react"</span>;
+
+<span class="kw">export default function</span> Hello() {
+  <span class="kw">const</span> [n, setN] = useState(<span class="str">0</span>);
+  <span class="kw">return</span> &lt;<span class="kw">button</span> onClick={() =&gt; setN(n + <span class="str">1</span>)}&gt;点了 {n} 次&lt;/<span class="kw">button</span>&gt;;
+}</code></pre>
+
+    <h2>下一步学什么</h2>
+    <ul>
+      <li>Next.js 的 Server / Client 边界 → <a href="./01-nextjs.html">01 · Next.js</a></li>
+      <li>类型系统 → <a href="./03-typescript.html">03 · TypeScript</a></li>
+      <li>官方文档：<a href="https://react.dev" target="_blank" rel="noopener noreferrer">react.dev</a></li>
+    </ul>
+
+    <p class="back-link"><a href="../index.html">🔙 返回路线图</a></p>
+  </div>
+</body>
+</html>
