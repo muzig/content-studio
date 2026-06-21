@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Next.js App Router — Content Studio 技术路线图</title>
+  <link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+  <div class="container">
+    <p><a href="../index.html">← 返回路线图</a></p>
+    <h1>🚀 Next.js App Router</h1>
+    <span class="badge badge-yellow">重点学</span>
+
+    <h2>是什么</h2>
+    <p>Next.js 是一个基于 React 的全栈框架。本项目使用 <strong>App Router</strong>（Next.js 13+ 引入的现代路由系统），通过文件目录结构定义路由与服务端行为。</p>
+
+    <h2>为什么这个项目要用它</h2>
+    <p>App Router 是项目的骨架：每个页面是一个文件、每个 API 是一段 Route Handler、共享布局放在 <code>layout.tsx</code>。本项目用 Next.js 16（package.json）。</p>
+    <p>项目里的实际位置：</p>
+    <ul>
+      <li><code>src/app/layout.tsx</code> — 全局布局（字体、Sidebar、TooltipProvider）</li>
+      <li><code>src/app/page.tsx</code> — 根路由，重定向到当天 daily 页</li>
+      <li><code>src/app/daily/[date]/page.tsx</code> — 动态路由示例</li>
+      <li><code>src/app/api/entries/[id]/route.ts</code> — API Route Handler</li>
+    </ul>
+
+    <h2>核心概念</h2>
+
+    <h3>1. 文件系统即路由</h3>
+    <p><code>src/app/</code> 下的每个文件夹 = 一个 URL 段。<code>page.tsx</code> 是页面、<code>layout.tsx</code> 是布局、<code>route.ts</code> 是 API。文件名是约定，不可改。</p>
+    <pre class="code-block"><code><span class="com">// src/app/page.tsx — 根路由 / </span>
+<span class="kw">import</span> { redirect } <span class="kw">from</span> <span class="str">"next/navigation"</span>;
+
+<span class="kw">export default function</span> Home() {
+  <span class="kw">const</span> d = <span class="kw">new</span> Date();
+  <span class="kw">const</span> today = <span class="str">`${d.getFullYear()}-${...}`</span>;
+  redirect(<span class="str">`/daily/${today}`</span>);
+}</code></pre>
+
+    <h3>2. Server Component vs Client Component</h3>
+    <p>默认是 Server Component（在服务端渲染、不发到浏览器）。需要交互（onClick、useState）才加 <code>"use client"</code> 指令。本项目 <code>Sidebar</code> 是 Client（要 <code>usePathname</code>），页面默认是 Server。</p>
+    <pre class="code-block"><code><span class="com">// src/components/sidebar.tsx — 客户端组件</span>
+<span class="str">"use client"</span>;
+
+<span class="kw">import</span> { usePathname } <span class="kw">from</span> <span class="str">"next/navigation"</span>;
+
+<span class="kw">export function</span> Sidebar() {
+  <span class="kw">const</span> pathname = usePathname();
+  <span class="com">// ... 渲染导航 ...</span>
+}</code></pre>
+
+    <h3>3. 动态路由 [param] — Client 端 useParams</h3>
+    <p>文件夹名用 <code>[xxx]</code> 表示动态段。<code>params.xxx</code> 在 Server Component 中通过 props 访问；在 Client Component 中用 <code>useParams()</code> 钩子访问。本项目 <code>daily/[date]/page.tsx</code> 是 Client Component（需要交互式日期切换）。</p>
+    <pre class="code-block"><code><span class="com">// src/app/daily/[date]/page.tsx</span>
+<span class="str">"use client"</span>;
+
+<span class="kw">import</span> { useState, useEffect, useCallback } <span class="kw">from</span> <span class="str">"react"</span>;
+<span class="kw">import</span> { useParams, useRouter } <span class="kw">from</span> <span class="str">"next/navigation"</span>;
+
+<span class="kw">export default function</span> DailyPage() {
+  <span class="kw">const</span> params = useParams();
+  <span class="kw">const</span> router = useRouter();
+  <span class="kw">const</span> date = params.date <span class="kw">as</span> <span class="kw">string</span>;
+
+  <span class="kw">const</span> [entries, setEntries] = useState&lt;Entry[]&gt;([]);
+  <span class="kw">const</span> [loading, setLoading] = useState(<span class="kw">true</span>);
+
+  <span class="kw">const</span> fetchEntries = useCallback(<span class="kw">async</span> () =&gt; {
+    <span class="kw">const</span> res = <span class="kw">await</span> fetch(<span class="str">`/api/daily/${date}`</span>);
+    <span class="kw">const</span> data = <span class="kw">await</span> res.json();
+    setEntries(data.entries || []);
+    setLoading(<span class="kw">false</span>);
+  }, [date]);
+
+  useEffect(() =&gt; { fetchEntries(); }, [fetchEntries]);
+  <span class="com">// ...</span>
+}</code></pre>
+
+    <h3>4. Route Handler（API）</h3>
+    <p><code>route.ts</code> 导出 <code>GET</code> / <code>POST</code> 等方法函数，对应 HTTP 动词。推荐用 <code>NextRequest</code> / <code>NextResponse</code> 以便访问请求头、构造带状态码的响应。</p>
+    <pre class="code-block"><code><span class="com">// src/app/api/entries/[id]/route.ts</span>
+<span class="kw">import</span> { NextRequest, NextResponse } <span class="kw">from</span> <span class="str">"next/server"</span>;
+<span class="kw">import</span> { prisma } <span class="kw">from</span> <span class="str">"@/lib/prisma"</span>;
+
+<span class="kw">export async function</span> GET(
+  request: NextRequest,
+  { params }: { params: <span class="kw">Promise</span>&lt;{ id: <span class="kw">string</span> }&gt; }
+) {
+  <span class="kw">const</span> { id } = <span class="kw">await</span> params;
+
+  <span class="kw">const</span> entry = <span class="kw">await</span> prisma.contentEntry.findUnique({
+    where: { id },
+    include: { hot_topic: <span class="kw">true</span>, platforms: <span class="kw">true</span> },
+  });
+
+  <span class="kw">if</span> (!entry) {
+    <span class="kw">return</span> NextResponse.json({ error: <span class="str">"Entry not found"</span> }, { status: <span class="num">404</span> });
+  }
+
+  <span class="kw">return</span> NextResponse.json({ entry });
+}</code></pre>
+
+    <h2>最小可运行示例</h2>
+    <p>创建一个最简单的页面 <code>src/app/hello/page.tsx</code>：</p>
+    <pre class="code-block"><code><span class="kw">export default function</span> Hello() {
+  <span class="kw">return</span> &lt;<span class="kw">h1</span>&gt;Hello&lt;/<span class="kw">h1</span>&gt;;
+}</code></pre>
+    <p>访问 <code>http://localhost:3000/hello</code> 即可看到。</p>
+
+    <h2>下一步学什么</h2>
+    <ul>
+      <li>React 基础 → <a href="./02-react.html">02 · React 19</a></li>
+      <li>TypeScript 路径别名 → <a href="./03-typescript.html">03 · TypeScript</a></li>
+      <li>官方文档：<a href="https://nextjs.org/docs/app" target="_blank" rel="noopener noreferrer">Next.js App Router 文档</a></li>
+    </ul>
+
+    <p class="back-link"><a href="../index.html">🔙 返回路线图</a></p>
+  </div>
+</body>
+</html>
