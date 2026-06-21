@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TypeScript — Content Studio 技术路线图</title>
+  <link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+  <div class="container">
+    <p><a href="../index.html">← 返回路线图</a></p>
+    <h1>📘 TypeScript</h1>
+    <span class="badge badge-yellow">重点学</span>
+
+    <h2>是什么</h2>
+    <p>TypeScript 是 JavaScript 的超集，给 JS 加了静态类型。编译时检查类型错误，编辑器（VSCode）能给出精确补全和跳转。</p>
+
+    <h2>为什么这个项目要用它</h2>
+    <p>本项目 <code>tsconfig.json</code> 开启 <code>strict: true</code>。Prisma 客户端、Next.js API、React Props 全部带类型，能在编译期发现拼错字段名、漏传参数等 bug。</p>
+    <p>项目里的实际位置：</p>
+    <ul>
+      <li><code>tsconfig.json</code> — 编译器配置</li>
+      <li><code>next-env.d.ts</code> — Next.js 生成的类型引用（不要手改）</li>
+      <li><code>src/lib/types.ts</code> — 项目内公共类型</li>
+      <li><code>src/generated/prisma/</code> — Prisma 自动生成的类型</li>
+    </ul>
+
+    <h2>核心概念</h2>
+
+    <h3>1. 基础类型注解</h3>
+    <pre class="code-block"><code><span class="kw">let</span> name: <span class="kw">string</span> = <span class="str">"alice"</span>;
+<span class="kw">let</span> count: <span class="kw">number</span> = <span class="str">42</span>;
+<span class="kw">let</span> active: <span class="kw">boolean</span> = <span class="kw">true</span>;
+<span class="kw">let</span> tags: <span class="kw">string</span>[] = [<span class="str">"ts"</span>, <span class="str">"next"</span>];</code></pre>
+
+    <h3>2. 接口 / 类型别名</h3>
+    <pre class="code-block"><code><span class="kw">interface</span> PlatformRule {
+  platform: <span class="kw">string</span>;
+  label: <span class="kw">string</span>;
+  style: <span class="kw">string</span>;
+}
+
+<span class="kw">type</span> Result = { ok: <span class="kw">true</span>; data: <span class="kw">unknown</span> } | { ok: <span class="kw">false</span>; error: <span class="kw">string</span> };</code></pre>
+
+    <h3>3. 路径别名 @/*</h3>
+    <p><code>tsconfig.json</code> 里：</p>
+    <pre class="code-block"><code>{
+  <span class="str">"compilerOptions"</span>: {
+    <span class="str">"paths"</span>: {
+      <span class="str">"@/*"</span>: [<span class="str">"./src/*"</span>]
+    }
+  }
+}</code></pre>
+    <p>效果：<code>@/lib/prisma</code> 等价 <code>src/lib/prisma</code>。本项目到处使用：</p>
+    <pre class="code-block"><code><span class="kw">import</span> { prisma } <span class="kw">from</span> <span class="str">"@/lib/prisma"</span>;
+<span class="kw">import</span> { cn } <span class="kw">from</span> <span class="str">"@/lib/utils"</span>;
+<span class="kw">import</span> { Button } <span class="kw">from</span> <span class="str">"@/components/ui/button"</span>;</code></pre>
+
+    <h3>4. 异步函数返回类型</h3>
+    <p>Next.js 的 <code>params</code> 在 15+ 是 Promise，必须 await：</p>
+    <pre class="code-block"><code><span class="kw">export default async function</span> Page({
+  params,
+}: {
+  params: <span class="kw">Promise</span>&lt;{ id: <span class="kw">string</span> }&gt;;
+}) {
+  <span class="kw">const</span> { id } = <span class="kw">await</span> params;
+  <span class="com">// id 现在是 string</span>
+}</code></pre>
+
+    <h2>最小可运行示例</h2>
+    <pre class="code-block"><code><span class="kw">type</span> User = { id: <span class="kw">number</span>; name: <span class="kw">string</span> };
+
+<span class="kw">function</span> greet(u: User): <span class="kw">string</span> {
+  <span class="kw">return</span> <span class="str">`Hi ${u.name}`</span>;
+}
+
+<span class="com">// 编辑器会报错：greet({ id: 1 })  // 缺少 name</span>
+greet({ id: <span class="str">1</span>, name: <span class="str">"Alice"</span> });</code></pre>
+
+    <h2>下一步学什么</h2>
+    <ul>
+      <li>Prisma 自动生成的类型 → <a href="./06-prisma.html">06 · Prisma</a></li>
+      <li>React Props 类型 → <a href="./02-react.html">02 · React 19</a></li>
+      <li>官方文档：<a href="https://www.typescriptlang.org/docs/" target="_blank" rel="noopener noreferrer">typescriptlang.org</a></li>
+    </ul>
+
+    <p class="back-link"><a href="../index.html">🔙 返回路线图</a></p>
+  </div>
+</body>
+</html>
