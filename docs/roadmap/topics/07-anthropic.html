@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Anthropic SDK — Content Studio 技术路线图</title>
+  <link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+  <div class="container">
+    <p><a href="../index.html">← 返回路线图</a></p>
+    <h1>🤖 Anthropic SDK</h1>
+    <span class="badge badge-green">已知</span>
+
+    <h2>是什么</h2>
+    <p>官方 <code>@anthropic-ai/sdk</code>（Node 版）封装了 Claude Messages API。本项目用它把热点 + 用户评论 + 平台规则，组装成 prompt 一次发到 Claude，生成各平台适配文案。</p>
+
+    <h2>为什么这个项目要用它</h2>
+    <p>项目核心价值之一就是「一处写作、多平台发布」。AI 生成模块是核心环节：<code>src/lib/ai.ts</code>。支持自定义 <code>ANTHROPIC_BASE_URL</code>（用于代理 / 测试）。</p>
+    <p>项目里的实际位置：</p>
+    <ul>
+      <li><code>src/lib/ai.ts</code> — Anthropic 客户端 + 平台化生成函数</li>
+      <li><code>.env</code> — <code>ANTHROPIC_API_KEY</code> / <code>ANTHROPIC_BASE_URL</code> / <code>ANTHROPIC_MODEL</code></li>
+      <li><code>src/app/api/generate/route.ts</code>（如果存在）— 暴露给前端的 HTTP 接口</li>
+    </ul>
+
+    <h2>核心概念</h2>
+
+    <h3>1. 客户端初始化</h3>
+    <pre class="code-block"><code><span class="com">// src/lib/ai.ts 摘录</span>
+<span class="kw">import</span> Anthropic <span class="kw">from</span> <span class="str">"@anthropic-ai/sdk"</span>;
+
+<span class="kw">const</span> anthropic = <span class="kw">new</span> Anthropic({
+  apiKey: process.env.ANTHROPIC_API_KEY,
+  baseURL: process.env.ANTHROPIC_BASE_URL,
+});</code></pre>
+
+    <h3>2. Messages API 调用</h3>
+    <pre class="code-block"><code><span class="kw">const</span> message = <span class="kw">await</span> anthropic.messages.create({
+  model: process.env.ANTHROPIC_MODEL || <span class="str">"claude-3-5-sonnet-20241022"</span>,
+  max_tokens: <span class="str">4096</span>,
+  system: systemPrompt,
+  messages: [{ role: <span class="str">"user"</span>, content: userMessage }],
+});
+
+<span class="kw">const</span> textBlock = message.content.find(b =&gt; b.type === <span class="str">"text"</span>);
+<span class="kw">return</span> textBlock ? textBlock.text : <span class="str">""</span>;</code></pre>
+    <p>响应是 content 数组，每项带 <code>type</code>（<code>"text"</code> 或 <code>"tool_use"</code>）。本项目只用 text。</p>
+
+    <h3>3. Prompt 拼装：system + user</h3>
+    <p><code>buildPrompt</code> 把平台规则（来自 <code>PlatformRule</code> 表）拼进 system prompt：</p>
+    <pre class="code-block"><code><span class="kw">const</span> systemPrompt = `你是一个专业的内容创作者 ...
+当前平台：${platformRule.label}
+平台规则：
+- 风格：${platformRule.style}
+- 结构：${platformRule.structure}
+- 约束：${JSON.parse(platformRule.constraints).maxLength} 字以内`;</code></pre>
+
+    <h3>4. 批量并行生成</h3>
+    <p>多平台时用 <code>Promise.all</code> 并发请求，单平台失败不影响其他平台但统一抛错：</p>
+    <pre class="code-block"><code><span class="kw">export async function</span> generateForAllPlatforms(...) {
+  <span class="kw">const</span> results = <span class="kw">await</span> Promise.all(
+    platformRules.map(<span class="kw">async</span> (rule) =&gt; {
+      <span class="kw">try</span> {
+        <span class="kw">const</span> content = <span class="kw">await</span> generateForPlatform(hotTopic, userComment, rule);
+        <span class="kw">return</span> { platform: rule.platform, content };
+      } <span class="kw">catch</span> (err) {
+        <span class="kw">throw new</span> Error(<span class="str">`生成 ${rule.label} 内容失败: ${err.message}`</span>);
+      }
+    })
+  );
+  <span class="kw">return</span> results.reduce((acc, r) =&gt; ({ ...acc, [r.platform]: r.content }), {});
+}</code></pre>
+
+    <h3>5. 环境变量</h3>
+    <pre class="code-block"><code><span class="com"># .env</span>
+ANTHROPIC_API_KEY=sk-ant-...
+ANTHROPIC_BASE_URL=https://api.anthropic.com   <span class="com"># 可选，自定义代理</span>
+ANTHROPIC_MODEL=claude-3-5-sonnet-20241022      <span class="com"># 可选，默认模型</span></code></pre>
+
+    <h2>最小可运行示例</h2>
+    <pre class="code-block"><code><span class="kw">import</span> Anthropic <span class="kw">from</span> <span class="str">"@anthropic-ai/sdk"</span>;
+<span class="kw">const</span> client = <span class="kw">new</span> Anthropic();
+
+<span class="kw">const</span> msg = <span class="kw">await</span> client.messages.create({
+  model: <span class="str">"claude-3-5-sonnet-20241022"</span>,
+  max_tokens: <span class="str">1024</span>,
+  messages: [{ role: <span class="str">"user"</span>, content: <span class="str">"用一句话介绍 TypeScript"</span> }],
+});
+console.log(msg.content[<span class="str">0</span>].text);</code></pre>
+
+    <h2>下一步学什么</h2>
+    <ul>
+      <li>Prisma 存规则 → <a href="./06-prisma.html">06 · Prisma</a></li>
+      <li>Stream 输出（流式返回）→ 官方文档进阶</li>
+      <li>官方文档：<a href="https://docs.anthropic.com/zh-CN/api/getting-started" target="_blank" rel="noopener noreferrer">docs.anthropic.com</a></li>
+    </ul>
+
+    <p class="back-link"><a href="../index.html">🔙 返回路线图</a></p>
+  </div>
+</body>
+</html>
