@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "db:seed": "tsx prisma/seed.ts"
+    "db:seed": "tsx prisma/seed.ts",
+    "roadmap": "serve docs/roadmap -l 3001 -c serve.json"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.105.0",
@@ -41,6 +42,7 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.2.9",
+    "serve": "^14.2.4",
     "signal-exit": "^3.0.7",
     "tailwindcss": "^4",
     "tsx": "^4.22.4",
