@@ -494,23 +494,23 @@ export default function CalendarPage() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 lg:px-6 py-8">
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="text-xl font-semibold flex items-center gap-2">
-          <CalendarIcon className="h-5 w-5" />
-          发布日历
-          {overdueCount > 0 && (
-            <Badge variant="destructive" className="ml-2 animate-pulse">
-              <AlertTriangle className="h-3 w-3 mr-1" />
-              {overdueCount} 条过期
-            </Badge>
-          )}
-        </h2>
-        <div className="flex items-center gap-2">
-          <div className="flex items-center border rounded-md">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
+        <div className="flex items-center justify-between">
+          <h2 className="text-lg sm:text-xl font-semibold flex items-center gap-2">
+            <CalendarIcon className="h-5 w-5" />
+            发布日历
+            {overdueCount > 0 && (
+              <Badge variant="destructive" className="ml-1 animate-pulse text-xs">
+                <AlertTriangle className="h-3 w-3 mr-0.5" />
+                {overdueCount}
+              </Badge>
+            )}
+          </h2>
+          <div className="flex items-center border rounded-md sm:hidden">
             <Button
               variant={viewMode === "month" ? "secondary" : "ghost"}
               size="sm"
-              className="rounded-r-none"
+              className="rounded-r-none px-2"
               onClick={() => setViewMode("month")}
             >
               <LayoutGrid className="h-4 w-4" />
@@ -518,28 +518,44 @@ export default function CalendarPage() {
             <Button
               variant={viewMode === "week" ? "secondary" : "ghost"}
               size="sm"
-              className="rounded-l-none"
+              className="rounded-l-none px-2"
               onClick={() => setViewMode("week")}
             >
               <Rows3 className="h-4 w-4" />
             </Button>
           </div>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={goToToday}
-          >
+        </div>
+        <div className="flex items-center justify-center gap-1.5">
+          <div className="hidden sm:flex items-center border rounded-md">
+            <Button
+              variant={viewMode === "month" ? "secondary" : "ghost"}
+              size="sm"
+              className="rounded-r-none px-2"
+              onClick={() => setViewMode("month")}
+            >
+              <LayoutGrid className="h-4 w-4" />
+            </Button>
+            <Button
+              variant={viewMode === "week" ? "secondary" : "ghost"}
+              size="sm"
+              className="rounded-l-none px-2"
+              onClick={() => setViewMode("week")}
+            >
+              <Rows3 className="h-4 w-4" />
+            </Button>
+          </div>
+          <Button variant="outline" size="sm" className="px-2" onClick={goToToday}>
             今天
           </Button>
-          <Button variant="outline" size="sm" onClick={viewMode === "month" ? prevMonth : prevWeek}>
+          <Button variant="outline" size="sm" className="px-2" onClick={viewMode === "month" ? prevMonth : prevWeek}>
             <ChevronLeft className="h-4 w-4" />
           </Button>
-          <span className="font-medium min-w-[160px] text-center">
+          <span className="font-medium text-sm min-w-[100px] text-center">
             {viewMode === "month"
               ? `${year}年${month + 1}月`
-              : `${weekDays7[0].getMonth() + 1}月${weekDays7[0].getDate()}日 - ${weekDays7[6].getMonth() + 1}月${weekDays7[6].getDate()}日`}
+              : `${weekDays7[0].getMonth() + 1}/${weekDays7[0].getDate()} - ${weekDays7[6].getMonth() + 1}/${weekDays7[6].getDate()}`}
           </span>
-          <Button variant="outline" size="sm" onClick={viewMode === "month" ? nextMonth : nextWeek}>
+          <Button variant="outline" size="sm" className="px-2" onClick={viewMode === "month" ? nextMonth : nextWeek}>
             <ChevronRight className="h-4 w-4" />
           </Button>
         </div>
