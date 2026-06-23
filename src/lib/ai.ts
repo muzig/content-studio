@@ -84,6 +84,55 @@ export async function generateForPlatform(
   return textBlock ? textBlock.text : "";
 }
 
+export interface ParsedHotTopic {
+  title: string;
+  content: string;
+  tags: string[];
+}
+
+export async function parseHotTopics(text: string): Promise<ParsedHotTopic[]> {
+  const model = process.env.ANTHROPIC_MODEL || "claude-3-5-sonnet-20241022";
+
+  const systemPrompt = `你是一个热点新闻分析助手。用户会粘贴一段热点新闻汇总文本，你需要从中提取每条独立的热点新闻。
+
+要求：
+1. 每条热点需要有一个简洁的标题（15字以内）
+2. 每条热点需要有摘要内容（保留原文关键信息）
+3. 每条热点需要提取相关标签（2-5个）
+4. 忽略数据统计信息（如新闻总数、AI分析数等元数据）
+5. 忽略平台分类信息（如[知乎]、[华尔街见闻]等来源标签），只提取热点内容本身
+6. 合并多个平台提到的同一事件为一条热点
+
+输出格式为 JSON 数组，每个元素包含 title、content、tags 字段。
+只输出 JSON，不要添加任何解释或 markdown 格式。`;
+
+  const message = await anthropic.messages.create({
+    model,
+    max_tokens: 4096,
+    system: systemPrompt,
+    messages: [{ role: "user", content: text }],
+  });
+
+  const textBlock = message.content.find((block) => block.type === "text");
+  if (!textBlock) return [];
+
+  // Try to extract JSON from the response
+  let jsonStr = textBlock.text.trim();
+  // Handle markdown code blocks
+  const jsonMatch = jsonStr.match(/```(?:json)?\s*([\s\S]*?)```/);
+  if (jsonMatch) {
+    jsonStr = jsonMatch[1].trim();
+  }
+
+  try {
+    const parsed = JSON.parse(jsonStr);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    console.error("Failed to parse AI response as JSON:", jsonStr);
+    return [];
+  }
+}
+
 export async function generateForAllPlatforms(
   hotTopic: string,
   userComment: string,

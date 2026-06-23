@@ -4,6 +4,8 @@ import { useState, useEffect, useCallback, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Dialog,
   DialogContent,
@@ -16,6 +18,10 @@ import {
   ChevronRight,
   Calendar as CalendarIcon,
   Eye,
+  AlertTriangle,
+  Check,
+  Copy,
+  Pencil,
 } from "lucide-react";
 
 interface ScheduledPost {
@@ -26,6 +32,7 @@ interface ScheduledPost {
   platform_content: {
     id: string;
     platform: string;
+    status: string;
     formatted: string;
     content_entry: {
       title: string | null;
@@ -37,9 +44,10 @@ interface ScheduledPost {
   };
 }
 
-interface PendingContent {
+interface PublishItem {
   id: string;
   platform: string;
+  status: string;
   formatted: string;
   content_entry: {
     title: string | null;
@@ -48,6 +56,10 @@ interface PendingContent {
       title: string;
     } | null;
   };
+  scheduled_post: {
+    scheduled_date: string;
+    scheduled_time: string | null;
+  } | null;
 }
 
 function formatDate(date: Date): string {
@@ -72,6 +84,12 @@ function getPlatformColor(platform: string): string {
   return colors[platform] || "bg-gray-100 text-gray-800";
 }
 
+function isOverdue(post: ScheduledPost): boolean {
+  if (post.platform_content.status === "published") return false;
+  const today = formatDate(new Date());
+  return post.scheduled_date < today;
+}
+
 export default function CalendarPage() {
   const [currentDate, setCurrentDate] = useState(new Date());
 
@@ -79,15 +97,20 @@ export default function CalendarPage() {
     setCurrentDate(new Date());
   }
   const [scheduledPosts, setScheduledPosts] = useState<ScheduledPost[]>([]);
-  const [pendingContent, setPendingContent] = useState<PendingContent[]>([]);
+  const [allItems, setAllItems] = useState<PublishItem[]>([]);
   const [loading, setLoading] = useState(true);
-  const [draggedItem, setDraggedItem] = useState<PendingContent | null>(null);
-  const [previewContent, setPreviewContent] = useState<PendingContent | null>(
+  const [draggedItem, setDraggedItem] = useState<PublishItem | null>(null);
+  const [previewContent, setPreviewContent] = useState<PublishItem | null>(
     null
   );
   const [previewScheduled, setPreviewScheduled] = useState<ScheduledPost | null>(
     null
   );
+  const [rightTab, setRightTab] = useState("pending");
+  const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [editItem, setEditItem] = useState<PublishItem | null>(null);
+  const [editText, setEditText] = useState("");
+  const [editSaving, setEditSaving] = useState(false);
 
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth();
@@ -119,36 +142,14 @@ export default function CalendarPage() {
     try {
       const [scheduleRes, publishRes] = await Promise.all([
         fetch(`/api/schedule?start=${startDateStr}&end=${endDateStr}`),
-        fetch("/api/publish?status=draft"),
+        fetch("/api/publish"),
       ]);
 
       const scheduleData = await scheduleRes.json();
       const publishData = await publishRes.json();
 
       setScheduledPosts(scheduleData.scheduledPosts || []);
-      setPendingContent(
-        (publishData.items || []).map(
-          (item: {
-            id: string;
-            platform: string;
-            formatted: string;
-            content_entry: {
-              title: string | null;
-              body: string;
-              hot_topic: { title: string } | null;
-            };
-          }) => ({
-            id: item.id,
-            platform: item.platform,
-            formatted: item.formatted,
-            content_entry: {
-              title: item.content_entry.title,
-              body: item.content_entry.body,
-              hot_topic: item.content_entry.hot_topic,
-            },
-          })
-        )
-      );
+      setAllItems(publishData.items || []);
     } catch (error) {
       console.error("Error fetching data:", error);
     } finally {
@@ -188,8 +189,12 @@ export default function CalendarPage() {
       if (res.ok) {
         const data = await res.json();
         setScheduledPosts((prev) => [...prev, data.scheduledPost]);
-        setPendingContent((prev) =>
-          prev.filter((item) => item.id !== draggedItem.id)
+        setAllItems((prev) =>
+          prev.map((item) =>
+            item.id === draggedItem.id
+              ? { ...item, scheduled_post: { scheduled_date: dateStr, scheduled_time: null } }
+              : item
+          )
         );
       }
     } catch (error) {
@@ -200,19 +205,120 @@ export default function CalendarPage() {
   }
 
   async function handleRemoveSchedule(id: string) {
+    const post = scheduledPosts.find((p) => p.id === id);
     try {
       const res = await fetch(`/api/schedule/${id}`, { method: "DELETE" });
       if (res.ok) {
         setScheduledPosts((prev) => prev.filter((post) => post.id !== id));
+        // Update allItems to remove scheduled_post reference
+        if (post) {
+          setAllItems((prev) =>
+            prev.map((item) =>
+              item.id === post.platform_content.id
+                ? { ...item, scheduled_post: null }
+                : item
+            )
+          );
+        }
       }
     } catch (error) {
       console.error("Error removing schedule:", error);
     }
   }
 
+  async function handleUpdateStatus(itemId: string, newStatus: string) {
+    try {
+      const res = await fetch(`/api/publish/${itemId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: newStatus }),
+      });
+      if (res.ok) {
+        setAllItems((prev) =>
+          prev.map((item) =>
+            item.id === itemId ? { ...item, status: newStatus } : item
+          )
+        );
+        // Also update scheduled posts if present
+        setScheduledPosts((prev) =>
+          prev.map((post) =>
+            post.platform_content.id === itemId
+              ? {
+                  ...post,
+                  platform_content: { ...post.platform_content, status: newStatus },
+                }
+              : post
+          )
+        );
+      }
+    } catch (error) {
+      console.error("Error updating status:", error);
+    }
+  }
+
+  function handleCopy(text: string, id: string) {
+    navigator.clipboard.writeText(text);
+    setCopiedId(id);
+    setTimeout(() => setCopiedId(null), 2000);
+  }
+
+  function openEdit(item: PublishItem) {
+    setEditItem(item);
+    setEditText(item.formatted);
+  }
+
+  async function handleSaveFormatted() {
+    if (!editItem) return;
+    setEditSaving(true);
+    try {
+      const res = await fetch(`/api/publish/${editItem.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ formatted: editText }),
+      });
+      if (res.ok) {
+        setAllItems((prev) =>
+          prev.map((item) =>
+            item.id === editItem.id ? { ...item, formatted: editText } : item
+          )
+        );
+        setScheduledPosts((prev) =>
+          prev.map((post) =>
+            post.platform_content.id === editItem.id
+              ? {
+                  ...post,
+                  platform_content: { ...post.platform_content, formatted: editText },
+                }
+              : post
+          )
+        );
+        setEditItem(null);
+      }
+    } catch (error) {
+      console.error("Error saving formatted:", error);
+    } finally {
+      setEditSaving(false);
+    }
+  }
+
   const weekDays = ["日", "一", "二", "三", "四", "五", "六"];
   const today = new Date();
   const todayStr = formatDate(today);
+
+  // Filter items by status
+  const pendingItems = allItems.filter((i) => i.status === "draft" && !i.scheduled_post);
+  const readyItems = allItems.filter((i) => i.status === "ready");
+  const publishedItems = allItems.filter((i) => i.status === "published");
+
+  // Count overdue
+  const overdueCount = scheduledPosts.filter(isOverdue).length;
+
+  const rightItems =
+    rightTab === "pending"
+      ? pendingItems
+      : rightTab === "ready"
+        ? readyItems
+        : publishedItems;
 
   if (loading) {
     return (
@@ -223,11 +329,17 @@ export default function CalendarPage() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-6 py-8">
+    <div className="max-w-7xl mx-auto px-4 lg:px-6 py-8">
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-xl font-semibold flex items-center gap-2">
           <CalendarIcon className="h-5 w-5" />
           发布日历
+          {overdueCount > 0 && (
+            <Badge variant="destructive" className="ml-2 animate-pulse">
+              <AlertTriangle className="h-3 w-3 mr-1" />
+              {overdueCount} 条过期
+            </Badge>
+          )}
         </h2>
         <div className="flex items-center gap-2">
           <Button
@@ -270,6 +382,8 @@ export default function CalendarPage() {
                   const isCurrentMonth = day.getMonth() === month;
                   const isToday = dateStr === todayStr;
                   const posts = getPostsForDate(dateStr);
+                  const overduePosts = posts.filter(isOverdue);
+                  const hasOverdue = overduePosts.length > 0;
 
                   return (
                     <div
@@ -279,7 +393,9 @@ export default function CalendarPage() {
                       } ${
                         isToday
                           ? "border-primary bg-primary/5 ring-2 ring-primary/20"
-                          : "border-border"
+                          : hasOverdue
+                            ? "border-destructive bg-destructive/5"
+                            : "border-border"
                       }`}
                       onDragOver={(e) => {
                         e.preventDefault();
@@ -308,26 +424,35 @@ export default function CalendarPage() {
                           {day.getDate()}
                         </span>
                         {posts.length > 0 && (
-                          <Badge variant="secondary" className="ml-1 text-xs">
+                          <Badge
+                            variant={hasOverdue ? "destructive" : "secondary"}
+                            className="ml-1 text-xs"
+                          >
                             {posts.length}
                           </Badge>
                         )}
                       </div>
                       <div className="space-y-1">
-                        {posts.slice(0, 3).map((post) => (
-                          <div
-                            key={post.id}
-                            className={`text-xs p-1 rounded cursor-pointer hover:opacity-80 flex items-center justify-between ${getPlatformColor(
-                              post.platform_content.platform
-                            )}`}
-                            onClick={() => setPreviewScheduled(post)}
-                          >
-                            <span>
-                              {getPlatformLabel(post.platform_content.platform)}
-                            </span>
-                            <Eye className="h-3 w-3" />
-                          </div>
-                        ))}
+                        {posts.slice(0, 3).map((post) => {
+                          const overdue = isOverdue(post);
+                          return (
+                            <div
+                              key={post.id}
+                              className={`text-xs p-1 rounded cursor-pointer hover:opacity-80 flex items-center justify-between ${
+                                overdue
+                                  ? "bg-destructive/20 text-destructive border border-destructive/40"
+                                  : getPlatformColor(post.platform_content.platform)
+                              }`}
+                              onClick={() => setPreviewScheduled(post)}
+                            >
+                              <span className="flex items-center gap-1">
+                                {overdue && <AlertTriangle className="h-3 w-3" />}
+                                {getPlatformLabel(post.platform_content.platform)}
+                              </span>
+                              <Eye className="h-3 w-3" />
+                            </div>
+                          );
+                        })}
                         {posts.length > 3 && (
                           <div className="text-xs text-muted-foreground">
                             +{posts.length - 3} 更多
@@ -344,47 +469,128 @@ export default function CalendarPage() {
 
         <div>
           <Card>
-            <CardHeader>
-              <CardTitle className="text-base">待排期内容</CardTitle>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base">内容管理</CardTitle>
+              <Tabs value={rightTab} onValueChange={setRightTab}>
+                <TabsList className="w-full">
+                  <TabsTrigger value="pending" className="flex-1 text-xs">
+                    待排期 ({pendingItems.length})
+                  </TabsTrigger>
+                  <TabsTrigger value="ready" className="flex-1 text-xs">
+                    就绪 ({readyItems.length})
+                  </TabsTrigger>
+                  <TabsTrigger value="published" className="flex-1 text-xs">
+                    已发布 ({publishedItems.length})
+                  </TabsTrigger>
+                </TabsList>
+              </Tabs>
             </CardHeader>
             <CardContent>
-              {pendingContent.length === 0 ? (
+              {rightItems.length === 0 ? (
                 <p className="text-sm text-muted-foreground text-center py-4">
-                  暂无待排期内容
+                  {rightTab === "pending"
+                    ? "暂无待排期内容"
+                    : rightTab === "ready"
+                      ? "暂无就绪内容"
+                      : "暂无已发布内容"}
                 </p>
               ) : (
-                <div className="space-y-2">
-                  {pendingContent.map((item) => (
+                <div className="space-y-2 max-h-[50vh] overflow-y-auto">
+                  {rightItems.map((item) => (
                     <div
                       key={item.id}
                       className={`p-2 rounded-md hover:shadow-md transition-shadow ${getPlatformColor(
                         item.platform
                       )}`}
-                      draggable
-                      onDragStart={() => setDraggedItem(item)}
+                      draggable={rightTab === "pending"}
+                      onDragStart={() => rightTab === "pending" && setDraggedItem(item)}
                       onDragEnd={() => setDraggedItem(null)}
                     >
                       <div className="flex items-center justify-between">
                         <div className="text-xs font-medium">
                           {getPlatformLabel(item.platform)}
                         </div>
-                        <button
-                          type="button"
-                          className="opacity-60 hover:opacity-100"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setPreviewContent(item);
-                          }}
-                          onMouseDown={(e) => e.stopPropagation()}
-                          aria-label="查看内容"
-                        >
-                          <Eye className="h-3 w-3" />
-                        </button>
+                        <div className="flex items-center gap-1">
+                          <button
+                            type="button"
+                            className="opacity-60 hover:opacity-100"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleCopy(item.formatted, item.id);
+                            }}
+                            onMouseDown={(e) => e.stopPropagation()}
+                            aria-label="复制内容"
+                          >
+                            {copiedId === item.id ? (
+                              <Check className="h-3 w-3 text-green-600" />
+                            ) : (
+                              <Copy className="h-3 w-3" />
+                            )}
+                          </button>
+                          <button
+                            type="button"
+                            className="opacity-60 hover:opacity-100"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              openEdit(item);
+                            }}
+                            onMouseDown={(e) => e.stopPropagation()}
+                            aria-label="编辑内容"
+                          >
+                            <Pencil className="h-3 w-3" />
+                          </button>
+                          <button
+                            type="button"
+                            className="opacity-60 hover:opacity-100"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setPreviewContent(item);
+                            }}
+                            onMouseDown={(e) => e.stopPropagation()}
+                            aria-label="查看内容"
+                          >
+                            <Eye className="h-3 w-3" />
+                          </button>
+                        </div>
                       </div>
                       <div className="text-xs truncate mt-1">
                         {item.content_entry.title ||
                           item.content_entry.hot_topic?.title ||
                           "无标题"}
+                      </div>
+                      {item.scheduled_post && (
+                        <div className="text-xs text-muted-foreground mt-1">
+                          📅 {item.scheduled_post.scheduled_date}
+                        </div>
+                      )}
+                      <div className="flex gap-1 mt-1.5">
+                        {item.status === "draft" && (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="text-xs h-5 px-1.5"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleUpdateStatus(item.id, "ready");
+                            }}
+                          >
+                            标记就绪
+                          </Button>
+                        )}
+                        {item.status === "ready" && (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="text-xs h-5 px-1.5"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleUpdateStatus(item.id, "published");
+                            }}
+                          >
+                            <Check className="h-3 w-3 mr-0.5" />
+                            确认发布
+                          </Button>
+                        )}
                       </div>
                     </div>
                   ))}
@@ -395,6 +601,7 @@ export default function CalendarPage() {
         </div>
       </div>
 
+      {/* Preview pending content */}
       <Dialog
         open={!!previewContent}
         onOpenChange={(open) => !open && setPreviewContent(null)}
@@ -414,7 +621,7 @@ export default function CalendarPage() {
                   </span>
                 </DialogTitle>
                 <DialogDescription>
-                  待排期内容预览
+                  内容预览
                 </DialogDescription>
               </DialogHeader>
               <div className="mt-4">
@@ -430,12 +637,40 @@ export default function CalendarPage() {
                 <div className="p-3 bg-muted rounded-md text-sm whitespace-pre-wrap">
                   {previewContent.formatted || "暂无内容"}
                 </div>
+                <div className="flex justify-end gap-2 mt-4">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() =>
+                      handleCopy(previewContent.formatted, previewContent.id)
+                    }
+                  >
+                    {copiedId === previewContent.id ? (
+                      <Check className="h-4 w-4 mr-1 text-green-600" />
+                    ) : (
+                      <Copy className="h-4 w-4 mr-1" />
+                    )}
+                    {copiedId === previewContent.id ? "已复制" : "复制"}
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      openEdit(previewContent);
+                      setPreviewContent(null);
+                    }}
+                  >
+                    <Pencil className="h-4 w-4 mr-1" />
+                    编辑
+                  </Button>
+                </div>
               </div>
             </>
           )}
         </DialogContent>
       </Dialog>
 
+      {/* Preview scheduled content */}
       <Dialog
         open={!!previewScheduled}
         onOpenChange={(open) => !open && setPreviewScheduled(null)}
@@ -465,6 +700,11 @@ export default function CalendarPage() {
                   排期于 {previewScheduled.scheduled_date}
                   {previewScheduled.scheduled_time &&
                     ` ${previewScheduled.scheduled_time}`}
+                  {isOverdue(previewScheduled) && (
+                    <span className="text-destructive ml-2">
+                      ⚠️ 已过期未发布
+                    </span>
+                  )}
                 </DialogDescription>
               </DialogHeader>
               <div className="mt-4">
@@ -485,12 +725,126 @@ export default function CalendarPage() {
                   <Button
                     variant="outline"
                     size="sm"
+                    onClick={() =>
+                      handleCopy(
+                        previewScheduled.platform_content.formatted,
+                        previewScheduled.platform_content.id
+                      )
+                    }
+                  >
+                    {copiedId === previewScheduled.platform_content.id ? (
+                      <Check className="h-4 w-4 mr-1 text-green-600" />
+                    ) : (
+                      <Copy className="h-4 w-4 mr-1" />
+                    )}
+                    {copiedId === previewScheduled.platform_content.id
+                      ? "已复制"
+                      : "复制"}
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      openEdit({
+                        id: previewScheduled.platform_content.id,
+                        platform: previewScheduled.platform_content.platform,
+                        status: previewScheduled.platform_content.status,
+                        formatted: previewScheduled.platform_content.formatted,
+                        content_entry: previewScheduled.platform_content.content_entry,
+                        scheduled_post: {
+                          scheduled_date: previewScheduled.scheduled_date,
+                          scheduled_time: previewScheduled.scheduled_time,
+                        },
+                      });
+                      setPreviewScheduled(null);
+                    }}
+                  >
+                    <Pencil className="h-4 w-4 mr-1" />
+                    编辑
+                  </Button>
+                  {previewScheduled.platform_content.status === "ready" && (
+                    <Button
+                      size="sm"
+                      onClick={() => {
+                        handleUpdateStatus(
+                          previewScheduled.platform_content.id,
+                          "published"
+                        );
+                        setPreviewScheduled(null);
+                      }}
+                    >
+                      <Check className="h-4 w-4 mr-1" />
+                      确认发布
+                    </Button>
+                  )}
+                  <Button
+                    variant="outline"
+                    size="sm"
                     onClick={() => {
                       handleRemoveSchedule(previewScheduled.id);
                       setPreviewScheduled(null);
                     }}
                   >
                     取消排期
+                  </Button>
+                </div>
+              </div>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit formatted content dialog */}
+      <Dialog
+        open={!!editItem}
+        onOpenChange={(open) => !open && setEditItem(null)}
+      >
+        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+          {editItem && (
+            <>
+              <DialogHeader>
+                <DialogTitle className="flex items-center gap-2">
+                  <Badge className={getPlatformColor(editItem.platform)}>
+                    {getPlatformLabel(editItem.platform)}
+                  </Badge>
+                  <span>
+                    {editItem.content_entry.title ||
+                      editItem.content_entry.hot_topic?.title ||
+                      "编辑内容"}
+                  </span>
+                </DialogTitle>
+                <DialogDescription>编辑发布内容</DialogDescription>
+              </DialogHeader>
+              <div className="mt-4 space-y-4">
+                <Textarea
+                  value={editText}
+                  onChange={(e) => setEditText(e.target.value)}
+                  rows={10}
+                  className="font-mono text-sm"
+                />
+                <div className="flex justify-end gap-2">
+                  <Button
+                    variant="ghost"
+                    onClick={() => setEditItem(null)}
+                  >
+                    取消
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={() => handleCopy(editText, editItem.id)}
+                  >
+                    {copiedId === editItem.id ? (
+                      <Check className="h-4 w-4 mr-1 text-green-600" />
+                    ) : (
+                      <Copy className="h-4 w-4 mr-1" />
+                    )}
+                    {copiedId === editItem.id ? "已复制" : "复制"}
+                  </Button>
+                  <Button
+                    onClick={handleSaveFormatted}
+                    disabled={editSaving}
+                  >
+                    {editSaving ? "保存中..." : "保存"}
                   </Button>
                 </div>
               </div>

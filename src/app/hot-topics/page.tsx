@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { HotTopicCard } from "@/components/hot-topic-card";
 import { HotTopicForm } from "@/components/hot-topic-form";
+import { HotTopicParser } from "@/components/hot-topic-parser";
 import { Search } from "lucide-react";
 
 interface HotTopic {
@@ -27,6 +28,7 @@ export default function HotTopicsPage() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [showForm, setShowForm] = useState(false);
+  const [showParser, setShowParser] = useState(false);
 
   const fetchHotTopics = useCallback(async () => {
     const params = new URLSearchParams();
@@ -67,6 +69,20 @@ export default function HotTopicsPage() {
     }
   }
 
+  async function handleUpdate(
+    id: string,
+    data: { title: string; content: string; url?: string; tags?: string[] }
+  ) {
+    const res = await fetch(`/api/hot-topics/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    });
+    if (res.ok) {
+      fetchHotTopics();
+    }
+  }
+
   function handleCreateContent(hotTopicId: string) {
     router.push(`/create/${hotTopicId}`);
   }
@@ -80,13 +96,28 @@ export default function HotTopicsPage() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto px-6 py-8">
+    <div className="max-w-4xl mx-auto px-4 lg:px-6 py-8">
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-xl font-semibold">热点收集</h2>
-        <Button onClick={() => setShowForm(!showForm)}>
-          {showForm ? "取消" : "+ 添加热点"}
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button variant="outline" onClick={() => { setShowParser(!showParser); setShowForm(false); }}>
+            {showParser ? "取消" : "📋 批量导入"}
+          </Button>
+          <Button onClick={() => { setShowForm(!showForm); setShowParser(false); }}>
+            {showForm ? "取消" : "+ 添加热点"}
+          </Button>
+        </div>
       </div>
+
+      {showParser && (
+        <div className="mb-6 border rounded-lg p-4 bg-card">
+          <h3 className="text-sm font-medium mb-3">粘贴热点新闻文本，AI 自动解析</h3>
+          <HotTopicParser
+            onComplete={() => { setShowParser(false); fetchHotTopics(); }}
+            onCancel={() => setShowParser(false)}
+          />
+        </div>
+      )}
 
       {showForm && (
         <div className="mb-6">
@@ -117,6 +148,7 @@ export default function HotTopicsPage() {
               hotTopic={topic}
               onDelete={handleDelete}
               onCreateContent={handleCreateContent}
+              onUpdate={handleUpdate}
             />
           ))}
         </div>

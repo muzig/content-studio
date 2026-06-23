@@ -112,7 +112,7 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto px-6 py-8">
+    <div className="max-w-4xl mx-auto px-4 lg:px-6 py-8">
       <h2 className="text-xl font-semibold mb-6 flex items-center gap-2">
         <Settings className="h-5 w-5" />
         设置

@@ -132,3 +132,10 @@
     @apply font-sans;
   }
 }
+
+/* Mobile: prevent 300ms tap delay */
+@media (hover: none) and (pointer: coarse) {
+  a, button, input, select, textarea {
+    touch-action: manipulation;
+  }
+}

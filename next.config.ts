@@ -1,7 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  allowedDevOrigins: ["<lan-ip>", "<tailscale-ip>"],
 };
 
 export default nextConfig;
