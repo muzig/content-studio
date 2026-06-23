@@ -3,7 +3,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -57,7 +56,6 @@ export default function CreatePage() {
   const [loading, setLoading] = useState(true);
   const [generating, setGenerating] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [title, setTitle] = useState("");
   const [comment, setComment] = useState("");
   const [activeTab, setActiveTab] = useState("tweets");
   const [generationStatus, setGenerationStatus] = useState<GenerationStatus[]>(
@@ -85,7 +83,6 @@ export default function CreatePage() {
       if (hotTopicData.hotTopic.entries?.length > 0) {
         const existingEntry = hotTopicData.hotTopic.entries[0];
         setEntry(existingEntry);
-        setTitle(existingEntry.title || "");
         setComment(existingEntry.body || "");
       }
     } catch (error) {
@@ -108,7 +105,7 @@ export default function CreatePage() {
         const res = await fetch(`/api/entries/${entry.id}`, {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ title, body: comment }),
+          body: JSON.stringify({ body: comment }),
         });
         if (res.ok) {
           const data = await res.json();
@@ -120,7 +117,6 @@ export default function CreatePage() {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             hot_topic_id: hotTopic.id,
-            title,
             body: comment,
           }),
         });
@@ -266,7 +262,7 @@ export default function CreatePage() {
   const tags = hotTopic.tags ? JSON.parse(hotTopic.tags) : [];
 
   return (
-    <div className="max-w-5xl mx-auto px-6 py-8">
+    <div className="max-w-5xl mx-auto px-4 lg:px-6 py-8">
       <div className="flex items-center gap-4 mb-6">
         <Button variant="ghost" size="sm" onClick={() => router.push("/hot-topics")}>
           <ArrowLeft className="h-4 w-4 mr-2" />
@@ -304,30 +300,16 @@ export default function CreatePage() {
             <CardTitle className="text-base">我的评论</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div>
-              <label className="text-sm font-medium mb-1 block">标题</label>
-              <Input
-                placeholder="内容标题（可选）"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                disabled={generating}
-              />
-            </div>
-            <div>
-              <label className="text-sm font-medium mb-1 block">
-                评论/想法
-              </label>
-              <Textarea
-                placeholder="写多少都行，AI 会自动适配..."
-                value={comment}
-                onChange={(e) => setComment(e.target.value)}
-                rows={6}
-                disabled={generating}
-              />
-              <p className="text-xs text-muted-foreground mt-1">
-                写得越多，AI 越侧重润色；写得越少，AI 越会展开创作
-              </p>
-            </div>
+            <Textarea
+              placeholder="写下你对这条热点的评论或想法..."
+              value={comment}
+              onChange={(e) => setComment(e.target.value)}
+              rows={6}
+              disabled={generating}
+            />
+            <p className="text-xs text-muted-foreground">
+              写得越多，AI 越侧重润色；写得越少，AI 越会展开创作
+            </p>
             <div className="flex gap-2">
               <Button onClick={handleSave} disabled={saving || generating} className="flex-1">
                 <Save className="h-4 w-4 mr-2" />
