@@ -28,7 +28,14 @@ export default function HotTopicsPage() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [showForm, setShowForm] = useState(false);
-  const [showParser, setShowParser] = useState(false);
+  const [showParser, setShowParser] = useState(() => {
+    if (typeof window === "undefined") return false;
+    try {
+      return !!localStorage.getItem("hot-topic-parser-state");
+    } catch {
+      return false;
+    }
+  });
 
   const fetchHotTopics = useCallback(async () => {
     const params = new URLSearchParams();
