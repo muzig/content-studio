@@ -111,6 +111,7 @@ export default function CalendarPage() {
   const [editItem, setEditItem] = useState<PublishItem | null>(null);
   const [editText, setEditText] = useState("");
   const [editSaving, setEditSaving] = useState(false);
+  const [earlyPublishTarget, setEarlyPublishTarget] = useState<ScheduledPost | null>(null);
 
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth();
@@ -253,6 +254,42 @@ export default function CalendarPage() {
       }
     } catch (error) {
       console.error("Error updating status:", error);
+    }
+  }
+
+  function isFuture(post: ScheduledPost): boolean {
+    return post.scheduled_date > todayStr;
+  }
+
+  async function handleEarlyPublish(moveToToday: boolean) {
+    if (!earlyPublishTarget) return;
+    const pcId = earlyPublishTarget.platform_content.id;
+    try {
+      await Promise.all([
+        handleUpdateStatus(pcId, "published"),
+        moveToToday
+          ? fetch(`/api/schedule/${earlyPublishTarget.id}`, {
+              method: "PATCH",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ scheduled_date: todayStr }),
+            }).then((res) => {
+              if (res.ok) {
+                setScheduledPosts((prev) =>
+                  prev.map((p) =>
+                    p.id === earlyPublishTarget.id
+                      ? { ...p, scheduled_date: todayStr }
+                      : p
+                  )
+                );
+              }
+            })
+          : Promise.resolve(),
+      ]);
+    } catch (error) {
+      console.error("Error publishing:", error);
+    } finally {
+      setEarlyPublishTarget(null);
+      setPreviewScheduled(null);
     }
   }
 
@@ -762,15 +799,19 @@ export default function CalendarPage() {
                     <Pencil className="h-4 w-4 mr-1" />
                     编辑
                   </Button>
-                  {previewScheduled.platform_content.status === "ready" && (
+                  {previewScheduled.platform_content.status !== "published" && (
                     <Button
                       size="sm"
                       onClick={() => {
-                        handleUpdateStatus(
-                          previewScheduled.platform_content.id,
-                          "published"
-                        );
-                        setPreviewScheduled(null);
+                        if (isFuture(previewScheduled)) {
+                          setEarlyPublishTarget(previewScheduled);
+                        } else {
+                          handleUpdateStatus(
+                            previewScheduled.platform_content.id,
+                            "published"
+                          );
+                          setPreviewScheduled(null);
+                        }
                       }}
                     >
                       <Check className="h-4 w-4 mr-1" />
@@ -847,6 +888,43 @@ export default function CalendarPage() {
                     {editSaving ? "保存中..." : "保存"}
                   </Button>
                 </div>
+              </div>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Early publish confirmation dialog */}
+      <Dialog
+        open={!!earlyPublishTarget}
+        onOpenChange={(open) => !open && setEarlyPublishTarget(null)}
+      >
+        <DialogContent className="max-w-md">
+          {earlyPublishTarget && (
+            <>
+              <DialogHeader>
+                <DialogTitle>提前发布</DialogTitle>
+                <DialogDescription>
+                  该内容排期为 {earlyPublishTarget.scheduled_date}，是否将排期挪到今日（{todayStr}）？
+                </DialogDescription>
+              </DialogHeader>
+              <div className="flex justify-end gap-2 mt-4">
+                <Button
+                  variant="ghost"
+                  onClick={() => setEarlyPublishTarget(null)}
+                >
+                  取消
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => handleEarlyPublish(false)}
+                >
+                  直接发布
+                </Button>
+                <Button onClick={() => handleEarlyPublish(true)}>
+                  <Check className="h-4 w-4 mr-1" />
+                  发布并移至今日
+                </Button>
               </div>
             </>
           )}
