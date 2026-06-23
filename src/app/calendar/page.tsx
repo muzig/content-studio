@@ -564,8 +564,8 @@ export default function CalendarPage() {
             </CardContent>
           </Card>
           ) : (
-          /* Week view */
-          <div className="grid grid-cols-7 gap-3">
+          /* Week view — vertical layout */
+          <div className="flex flex-col gap-3">
             {weekDays7.map((day) => {
               const dateStr = formatDate(day);
               const isToday = dateStr === todayStr;
@@ -577,7 +577,7 @@ export default function CalendarPage() {
               return (
                 <div
                   key={dateStr}
-                  className={`min-h-[400px] border-2 rounded-lg p-3 transition-colors ${
+                  className={`border-2 rounded-lg p-3 transition-colors ${
                     isToday
                       ? "border-primary bg-primary/5 ring-2 ring-primary/20"
                       : hasOverdue
@@ -597,62 +597,64 @@ export default function CalendarPage() {
                     handleDrop(dateStr);
                   }}
                 >
-                  <div className="flex items-center justify-between mb-3">
-                    <div className="flex items-center gap-1.5">
-                      {isToday && (
-                        <span className="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-primary text-primary-foreground">
-                          今
-                        </span>
-                      )}
-                      <span className={`text-sm font-semibold ${isToday ? "text-primary" : ""}`}>
-                        {day.getMonth() + 1}/{day.getDate()}
+                  <div className="flex items-center gap-2 mb-2">
+                    {isToday && (
+                      <span className="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-primary text-primary-foreground">
+                        今
                       </span>
-                      <span className="text-xs text-muted-foreground">{dayLabel}</span>
-                    </div>
+                    )}
+                    <span className={`text-sm font-semibold ${isToday ? "text-primary" : ""}`}>
+                      {day.getMonth() + 1}月{day.getDate()}日
+                    </span>
+                    <span className="text-xs text-muted-foreground">{dayLabel}</span>
                     {posts.length > 0 && (
-                      <Badge variant={hasOverdue ? "destructive" : "secondary"} className="text-xs">
-                        {posts.length}
+                      <Badge variant={hasOverdue ? "destructive" : "secondary"} className="text-xs ml-auto">
+                        {posts.length} 条
                       </Badge>
                     )}
                   </div>
-                  <div className="space-y-2">
-                    {posts.map((post) => {
-                      const overdue = isOverdue(post);
-                      const title = post.platform_content.content_entry.title ||
-                        post.platform_content.content_entry.hot_topic?.title ||
-                        "无标题";
-                      const preview = post.platform_content.formatted?.slice(0, 60) || "";
-                      return (
-                        <div
-                          key={post.id}
-                          className={`p-2 rounded-md cursor-pointer hover:opacity-80 text-xs ${
-                            overdue
-                              ? "bg-destructive/20 text-destructive border border-destructive/40"
-                              : post.platform_content.status === "published"
-                                ? "bg-green-50 border border-green-200"
-                                : getPlatformColor(post.platform_content.platform)
-                          }`}
-                          onClick={() => setPreviewScheduled(post)}
-                        >
-                          <div className="flex items-center justify-between mb-1">
-                            <span className="flex items-center gap-1 font-medium">
-                              {overdue && <AlertTriangle className="h-3 w-3" />}
-                              {getPlatformLabel(post.platform_content.platform)}
-                            </span>
-                            {post.platform_content.status === "published" && (
-                              <Check className="h-3 w-3 text-green-600" />
+                  {posts.length === 0 ? (
+                    <div className="text-xs text-muted-foreground py-2">暂无排期</div>
+                  ) : (
+                    <div className="flex flex-wrap gap-2">
+                      {posts.map((post) => {
+                        const overdue = isOverdue(post);
+                        const title = post.platform_content.content_entry.title ||
+                          post.platform_content.content_entry.hot_topic?.title ||
+                          "无标题";
+                        const preview = post.platform_content.formatted?.slice(0, 80) || "";
+                        return (
+                          <div
+                            key={post.id}
+                            className={`p-2.5 rounded-md cursor-pointer hover:opacity-80 text-xs flex-1 min-w-[200px] max-w-[400px] ${
+                              overdue
+                                ? "bg-destructive/20 text-destructive border border-destructive/40"
+                                : post.platform_content.status === "published"
+                                  ? "bg-green-50 border border-green-200"
+                                  : getPlatformColor(post.platform_content.platform)
+                            }`}
+                            onClick={() => setPreviewScheduled(post)}
+                          >
+                            <div className="flex items-center justify-between mb-1">
+                              <span className="flex items-center gap-1 font-medium">
+                                {overdue && <AlertTriangle className="h-3 w-3" />}
+                                {getPlatformLabel(post.platform_content.platform)}
+                              </span>
+                              {post.platform_content.status === "published" && (
+                                <Check className="h-3 w-3 text-green-600" />
+                              )}
+                            </div>
+                            <div className="font-medium truncate">{title}</div>
+                            {preview && (
+                              <div className="text-muted-foreground line-clamp-2 mt-0.5">
+                                {preview}
+                              </div>
                             )}
                           </div>
-                          <div className="font-medium truncate">{title}</div>
-                          {preview && (
-                            <div className="text-muted-foreground line-clamp-2 mt-0.5">
-                              {preview}
-                            </div>
-                          )}
-                        </div>
-                      );
-                    })}
-                  </div>
+                        );
+                      })}
+                    </div>
+                  )}
                 </div>
               );
             })}
