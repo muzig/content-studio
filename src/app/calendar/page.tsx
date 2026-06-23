@@ -22,6 +22,8 @@ import {
   Check,
   Copy,
   Pencil,
+  LayoutGrid,
+  Rows3,
 } from "lucide-react";
 
 interface ScheduledPost {
@@ -92,6 +94,7 @@ function isOverdue(post: ScheduledPost): boolean {
 
 export default function CalendarPage() {
   const [currentDate, setCurrentDate] = useState(new Date());
+  const [viewMode, setViewMode] = useState<"month" | "week">("month");
 
   function goToToday() {
     setCurrentDate(new Date());
@@ -116,27 +119,73 @@ export default function CalendarPage() {
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth();
 
-  const { startDateStr, endDateStr, days } = useMemo(() => {
+  const monthDays = useMemo(() => {
     const firstDay = new Date(year, month, 1);
     const lastDay = new Date(year, month + 1, 0);
     const start = new Date(firstDay);
     start.setDate(start.getDate() - start.getDay());
     const end = new Date(lastDay);
     end.setDate(end.getDate() + (6 - end.getDay()));
-
     const daysList: Date[] = [];
     const current = new Date(start);
     while (current <= end) {
       daysList.push(new Date(current));
       current.setDate(current.getDate() + 1);
     }
-
-    return {
-      startDateStr: formatDate(start),
-      endDateStr: formatDate(end),
-      days: daysList,
-    };
+    return daysList;
   }, [year, month]);
+
+  function prevMonth() {
+    setCurrentDate(new Date(year, month - 1, 1));
+  }
+
+  function nextMonth() {
+    setCurrentDate(new Date(year, month + 1, 1));
+  }
+
+  function prevWeek() {
+    const d = new Date(currentDate);
+    d.setDate(d.getDate() - 7);
+    setCurrentDate(d);
+  }
+
+  function nextWeek() {
+    const d = new Date(currentDate);
+    d.setDate(d.getDate() + 7);
+    setCurrentDate(d);
+  }
+
+  // Week view: compute the 7 days of the week containing currentDate
+  const weekDays7 = useMemo(() => {
+    const d = new Date(currentDate);
+    const dayOfWeek = d.getDay(); // 0=Sun
+    const start = new Date(d);
+    start.setDate(start.getDate() - dayOfWeek);
+    const days: Date[] = [];
+    for (let i = 0; i < 7; i++) {
+      const nd = new Date(start);
+      nd.setDate(nd.getDate() + i);
+      days.push(nd);
+    }
+    return days;
+  }, [currentDate]);
+
+  const weekStartStr = formatDate(weekDays7[0]);
+  const weekEndStr = formatDate(weekDays7[6]);
+
+  // Fetch data for week view (wider range)
+  const { startDateStr, endDateStr } = useMemo(() => {
+    if (viewMode === "week") {
+      return { startDateStr: weekStartStr, endDateStr: weekEndStr };
+    }
+    const firstDay = new Date(year, month, 1);
+    const lastDay = new Date(year, month + 1, 0);
+    const start = new Date(firstDay);
+    start.setDate(start.getDate() - start.getDay());
+    const end = new Date(lastDay);
+    end.setDate(end.getDate() + (6 - end.getDay()));
+    return { startDateStr: formatDate(start), endDateStr: formatDate(end) };
+  }, [viewMode, weekStartStr, weekEndStr, year, month]);
 
   const fetchData = useCallback(async () => {
     setLoading(true);
@@ -161,14 +210,6 @@ export default function CalendarPage() {
   useEffect(() => {
     fetchData();
   }, [fetchData]);
-
-  function prevMonth() {
-    setCurrentDate(new Date(year, month - 1, 1));
-  }
-
-  function nextMonth() {
-    setCurrentDate(new Date(year, month + 1, 1));
-  }
 
   function getPostsForDate(dateStr: string): ScheduledPost[] {
     return scheduledPosts.filter((post) => post.scheduled_date === dateStr);
@@ -379,21 +420,40 @@ export default function CalendarPage() {
           )}
         </h2>
         <div className="flex items-center gap-2">
+          <div className="flex items-center border rounded-md">
+            <Button
+              variant={viewMode === "month" ? "secondary" : "ghost"}
+              size="sm"
+              className="rounded-r-none"
+              onClick={() => setViewMode("month")}
+            >
+              <LayoutGrid className="h-4 w-4" />
+            </Button>
+            <Button
+              variant={viewMode === "week" ? "secondary" : "ghost"}
+              size="sm"
+              className="rounded-l-none"
+              onClick={() => setViewMode("week")}
+            >
+              <Rows3 className="h-4 w-4" />
+            </Button>
+          </div>
           <Button
             variant="outline"
             size="sm"
             onClick={goToToday}
-            disabled={`${year}年${month + 1}月` === `${today.getFullYear()}年${today.getMonth() + 1}月`}
           >
             今天
           </Button>
-          <Button variant="outline" size="sm" onClick={prevMonth}>
+          <Button variant="outline" size="sm" onClick={viewMode === "month" ? prevMonth : prevWeek}>
             <ChevronLeft className="h-4 w-4" />
           </Button>
-          <span className="font-medium min-w-[120px] text-center">
-            {year}年{month + 1}月
+          <span className="font-medium min-w-[160px] text-center">
+            {viewMode === "month"
+              ? `${year}年${month + 1}月`
+              : `${weekDays7[0].getMonth() + 1}月${weekDays7[0].getDate()}日 - ${weekDays7[6].getMonth() + 1}月${weekDays7[6].getDate()}日`}
           </span>
-          <Button variant="outline" size="sm" onClick={nextMonth}>
+          <Button variant="outline" size="sm" onClick={viewMode === "month" ? nextMonth : nextWeek}>
             <ChevronRight className="h-4 w-4" />
           </Button>
         </div>
@@ -401,6 +461,7 @@ export default function CalendarPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         <div className="lg:col-span-3">
+          {viewMode === "month" ? (
           <Card>
             <CardContent className="p-4">
               <div className="grid grid-cols-7 gap-1 mb-2">
@@ -414,7 +475,7 @@ export default function CalendarPage() {
                 ))}
               </div>
               <div className="grid grid-cols-7 gap-1">
-                {days.map((day) => {
+                {monthDays.map((day) => {
                   const dateStr = formatDate(day);
                   const isCurrentMonth = day.getMonth() === month;
                   const isToday = dateStr === todayStr;
@@ -502,6 +563,101 @@ export default function CalendarPage() {
               </div>
             </CardContent>
           </Card>
+          ) : (
+          /* Week view */
+          <div className="grid grid-cols-7 gap-3">
+            {weekDays7.map((day) => {
+              const dateStr = formatDate(day);
+              const isToday = dateStr === todayStr;
+              const posts = getPostsForDate(dateStr);
+              const overduePosts = posts.filter(isOverdue);
+              const hasOverdue = overduePosts.length > 0;
+              const dayLabel = ["周日", "周一", "周二", "周三", "周四", "周五", "周六"][day.getDay()];
+
+              return (
+                <div
+                  key={dateStr}
+                  className={`min-h-[400px] border-2 rounded-lg p-3 transition-colors ${
+                    isToday
+                      ? "border-primary bg-primary/5 ring-2 ring-primary/20"
+                      : hasOverdue
+                        ? "border-destructive bg-destructive/5"
+                        : "border-border bg-background"
+                  }`}
+                  onDragOver={(e) => {
+                    e.preventDefault();
+                    e.currentTarget.classList.add("bg-primary/10");
+                  }}
+                  onDragLeave={(e) => {
+                    e.currentTarget.classList.remove("bg-primary/10");
+                  }}
+                  onDrop={(e) => {
+                    e.preventDefault();
+                    e.currentTarget.classList.remove("bg-primary/10");
+                    handleDrop(dateStr);
+                  }}
+                >
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center gap-1.5">
+                      {isToday && (
+                        <span className="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-primary text-primary-foreground">
+                          今
+                        </span>
+                      )}
+                      <span className={`text-sm font-semibold ${isToday ? "text-primary" : ""}`}>
+                        {day.getMonth() + 1}/{day.getDate()}
+                      </span>
+                      <span className="text-xs text-muted-foreground">{dayLabel}</span>
+                    </div>
+                    {posts.length > 0 && (
+                      <Badge variant={hasOverdue ? "destructive" : "secondary"} className="text-xs">
+                        {posts.length}
+                      </Badge>
+                    )}
+                  </div>
+                  <div className="space-y-2">
+                    {posts.map((post) => {
+                      const overdue = isOverdue(post);
+                      const title = post.platform_content.content_entry.title ||
+                        post.platform_content.content_entry.hot_topic?.title ||
+                        "无标题";
+                      const preview = post.platform_content.formatted?.slice(0, 60) || "";
+                      return (
+                        <div
+                          key={post.id}
+                          className={`p-2 rounded-md cursor-pointer hover:opacity-80 text-xs ${
+                            overdue
+                              ? "bg-destructive/20 text-destructive border border-destructive/40"
+                              : post.platform_content.status === "published"
+                                ? "bg-green-50 border border-green-200"
+                                : getPlatformColor(post.platform_content.platform)
+                          }`}
+                          onClick={() => setPreviewScheduled(post)}
+                        >
+                          <div className="flex items-center justify-between mb-1">
+                            <span className="flex items-center gap-1 font-medium">
+                              {overdue && <AlertTriangle className="h-3 w-3" />}
+                              {getPlatformLabel(post.platform_content.platform)}
+                            </span>
+                            {post.platform_content.status === "published" && (
+                              <Check className="h-3 w-3 text-green-600" />
+                            )}
+                          </div>
+                          <div className="font-medium truncate">{title}</div>
+                          {preview && (
+                            <div className="text-muted-foreground line-clamp-2 mt-0.5">
+                              {preview}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+          )}
         </div>
 
         <div>
@@ -543,91 +699,79 @@ export default function CalendarPage() {
                       onDragStart={() => rightTab === "pending" && setDraggedItem(item)}
                       onDragEnd={() => setDraggedItem(null)}
                     >
-                      <div className="flex items-center justify-between">
-                        <div className="text-xs font-medium">
-                          {getPlatformLabel(item.platform)}
+                      <div className="flex items-start gap-2">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs font-medium">
+                              {getPlatformLabel(item.platform)}
+                            </span>
+                            {item.scheduled_post && (
+                              <span className="text-xs text-muted-foreground">
+                                📅 {item.scheduled_post.scheduled_date}
+                              </span>
+                            )}
+                          </div>
+                          <div className="text-xs truncate mt-0.5">
+                            {item.content_entry.title ||
+                              item.content_entry.hot_topic?.title ||
+                              "无标题"}
+                          </div>
                         </div>
-                        <div className="flex items-center gap-1">
+                        <div className="flex items-center gap-0.5 shrink-0">
                           <button
                             type="button"
-                            className="opacity-60 hover:opacity-100"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleCopy(item.formatted, item.id);
-                            }}
+                            className="h-7 w-7 flex items-center justify-center rounded hover:bg-black/10 transition-colors"
+                            onClick={(e) => { e.stopPropagation(); setPreviewContent(item); }}
                             onMouseDown={(e) => e.stopPropagation()}
-                            aria-label="复制内容"
+                            title="预览"
+                          >
+                            <Eye className="h-3.5 w-3.5" />
+                          </button>
+                          <button
+                            type="button"
+                            className="h-7 w-7 flex items-center justify-center rounded hover:bg-black/10 transition-colors"
+                            onClick={(e) => { e.stopPropagation(); handleCopy(item.formatted, item.id); }}
+                            onMouseDown={(e) => e.stopPropagation()}
+                            title="复制"
                           >
                             {copiedId === item.id ? (
-                              <Check className="h-3 w-3 text-green-600" />
+                              <Check className="h-3.5 w-3.5 text-green-600" />
                             ) : (
-                              <Copy className="h-3 w-3" />
+                              <Copy className="h-3.5 w-3.5" />
                             )}
                           </button>
                           <button
                             type="button"
-                            className="opacity-60 hover:opacity-100"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              openEdit(item);
-                            }}
+                            className="h-7 w-7 flex items-center justify-center rounded hover:bg-black/10 transition-colors"
+                            onClick={(e) => { e.stopPropagation(); openEdit(item); }}
                             onMouseDown={(e) => e.stopPropagation()}
-                            aria-label="编辑内容"
+                            title="编辑"
                           >
-                            <Pencil className="h-3 w-3" />
+                            <Pencil className="h-3.5 w-3.5" />
                           </button>
-                          <button
-                            type="button"
-                            className="opacity-60 hover:opacity-100"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setPreviewContent(item);
-                            }}
-                            onMouseDown={(e) => e.stopPropagation()}
-                            aria-label="查看内容"
-                          >
-                            <Eye className="h-3 w-3" />
-                          </button>
+                          {item.status === "draft" && (
+                            <button
+                              type="button"
+                              className="h-7 w-7 flex items-center justify-center rounded hover:bg-black/10 transition-colors"
+                              onClick={(e) => { e.stopPropagation(); handleUpdateStatus(item.id, "ready"); }}
+                              onMouseDown={(e) => e.stopPropagation()}
+                              title="标记就绪"
+                            >
+                              <Check className="h-3.5 w-3.5" />
+                            </button>
+                          )}
+                          {item.status === "ready" && (
+                            <button
+                              type="button"
+                              className="h-7 w-7 flex items-center justify-center rounded hover:bg-black/10 text-green-700"
+                              onClick={(e) => { e.stopPropagation(); handleUpdateStatus(item.id, "published"); }}
+                              onMouseDown={(e) => e.stopPropagation()}
+                              title="确认发布"
+                            >
+                              <Check className="h-4 w-4" />
+                            </button>
+                          )}
                         </div>
-                      </div>
-                      <div className="text-xs truncate mt-1">
-                        {item.content_entry.title ||
-                          item.content_entry.hot_topic?.title ||
-                          "无标题"}
-                      </div>
-                      {item.scheduled_post && (
-                        <div className="text-xs text-muted-foreground mt-1">
-                          📅 {item.scheduled_post.scheduled_date}
-                        </div>
-                      )}
-                      <div className="flex gap-1 mt-1.5">
-                        {item.status === "draft" && (
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="text-xs h-5 px-1.5"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleUpdateStatus(item.id, "ready");
-                            }}
-                          >
-                            标记就绪
-                          </Button>
-                        )}
-                        {item.status === "ready" && (
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="text-xs h-5 px-1.5"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleUpdateStatus(item.id, "published");
-                            }}
-                          >
-                            <Check className="h-3 w-3 mr-0.5" />
-                            确认发布
-                          </Button>
-                        )}
                       </div>
                     </div>
                   ))}
