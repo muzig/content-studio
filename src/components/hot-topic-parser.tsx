@@ -177,8 +177,8 @@ export function HotTopicParser({ onComplete, onCancel }: HotTopicParserProps) {
     onCancel();
   }
 
-  // Show results view if we have parsed topics for the current text
-  if ((text === parsedText && topics.length > 0) || parsing) {
+  // Show results view only when we have actual results
+  if (text === parsedText && topics.length > 0) {
     return (
       <div className="space-y-4">
         {error && (
@@ -187,50 +187,41 @@ export function HotTopicParser({ onComplete, onCancel }: HotTopicParserProps) {
           </div>
         )}
 
-        {parsing ? (
-          <div className="flex items-center justify-center py-12 text-muted-foreground">
-            <Loader2 className="h-5 w-5 animate-spin mr-2" />
-            AI 正在解析...
-          </div>
-        ) : (
-          <>
-            <div className="flex items-center justify-between">
-              <p className="text-sm text-muted-foreground">
-                解析出 {topics.length} 条热点，点击标题可编辑
-              </p>
-              <Button variant="ghost" size="sm" onClick={addTopic}>
-                <Plus className="h-4 w-4 mr-1" />
-                手动添加
-              </Button>
-            </div>
+        <div className="flex items-center justify-between">
+          <p className="text-sm text-muted-foreground">
+            解析出 {topics.length} 条热点，点击标题可编辑
+          </p>
+          <Button variant="ghost" size="sm" onClick={addTopic}>
+            <Plus className="h-4 w-4 mr-1" />
+            手动添加
+          </Button>
+        </div>
 
-            <div className="space-y-2 max-h-[50vh] overflow-y-auto">
-              {topics.map((topic, index) => (
-                <TopicRow
-                  key={index}
-                  topic={topic}
-                  onChange={(field, value) => updateTopic(index, field, value)}
-                  onRemove={() => removeTopic(index)}
-                />
-              ))}
-            </div>
+        <div className="space-y-2 max-h-[50vh] overflow-y-auto">
+          {topics.map((topic, index) => (
+            <TopicRow
+              key={index}
+              topic={topic}
+              onChange={(field, value) => updateTopic(index, field, value)}
+              onRemove={() => removeTopic(index)}
+            />
+          ))}
+        </div>
 
-            <div className="flex items-center gap-2 justify-end pt-2 border-t">
-              <Button variant="ghost" onClick={handleCancel}>
-                取消
-              </Button>
-              <Button
-                onClick={handleSaveAll}
-                disabled={saving || topics.filter((t) => t.title.trim()).length === 0}
-              >
-                {saving ? (
-                  <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                ) : null}
-                批量保存 ({topics.filter((t) => t.title.trim()).length})
-              </Button>
-            </div>
-          </>
-        )}
+        <div className="flex items-center gap-2 justify-end pt-2 border-t">
+          <Button variant="ghost" onClick={handleCancel}>
+            取消
+          </Button>
+          <Button
+            onClick={handleSaveAll}
+            disabled={saving || topics.filter((t) => t.title.trim()).length === 0}
+          >
+            {saving ? (
+              <Loader2 className="h-4 w-4 animate-spin mr-2" />
+            ) : null}
+            批量保存 ({topics.filter((t) => t.title.trim()).length})
+          </Button>
+        </div>
       </div>
     );
   }
@@ -250,7 +241,15 @@ export function HotTopicParser({ onComplete, onCancel }: HotTopicParserProps) {
         onChange={(e) => setText(e.target.value)}
         rows={10}
         className="font-mono text-sm"
+        disabled={parsing}
       />
+
+      {parsing && (
+        <div className="flex items-center gap-2 text-sm text-muted-foreground bg-muted/50 p-3 rounded-md">
+          <Loader2 className="h-4 w-4 animate-spin" />
+          <span>AI 正在后台分析，完成后会显示结果...</span>
+        </div>
+      )}
 
       <div className="flex items-center gap-2 justify-end">
         <Button variant="ghost" onClick={handleCancel}>
@@ -262,7 +261,7 @@ export function HotTopicParser({ onComplete, onCancel }: HotTopicParserProps) {
           ) : (
             <Sparkles className="h-4 w-4 mr-2" />
           )}
-          AI 解析
+          {parsing ? "分析中..." : "AI 解析"}
         </Button>
       </div>
     </div>
