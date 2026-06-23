@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
 import {
   Dialog,
   DialogContent,
@@ -94,7 +95,7 @@ function isOverdue(post: ScheduledPost): boolean {
 
 export default function CalendarPage() {
   const [currentDate, setCurrentDate] = useState(new Date());
-  const [viewMode, setViewMode] = useState<"month" | "week">("month");
+  const [viewMode, setViewMode] = useState<"month" | "week">("week");
 
   function goToToday() {
     setCurrentDate(new Date());
@@ -115,6 +116,10 @@ export default function CalendarPage() {
   const [editText, setEditText] = useState("");
   const [editSaving, setEditSaving] = useState(false);
   const [earlyPublishTarget, setEarlyPublishTarget] = useState<ScheduledPost | null>(null);
+  const [scheduleItem, setScheduleItem] = useState<PublishItem | null>(null);
+  const [scheduleDate, setScheduleDate] = useState("");
+  const [scheduleTime, setScheduleTime] = useState("");
+  const [scheduleSaving, setScheduleSaving] = useState(false);
 
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth();
@@ -331,6 +336,87 @@ export default function CalendarPage() {
     } finally {
       setEarlyPublishTarget(null);
       setPreviewScheduled(null);
+    }
+  }
+
+  function openScheduleDialog(item: PublishItem) {
+    setScheduleItem(item);
+    setScheduleDate(item.scheduled_post?.scheduled_date || todayStr);
+    setScheduleTime(item.scheduled_post?.scheduled_time || "");
+  }
+
+  async function handleSaveSchedule() {
+    if (!scheduleItem) return;
+    setScheduleSaving(true);
+    try {
+      if (scheduleItem.scheduled_post) {
+        // Update existing schedule
+        const existingPost = scheduledPosts.find(
+          (p) => p.platform_content.id === scheduleItem.id
+        );
+        if (existingPost) {
+          const res = await fetch(`/api/schedule/${existingPost.id}`, {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              scheduled_date: scheduleDate,
+              scheduled_time: scheduleTime || null,
+            }),
+          });
+          if (res.ok) {
+            const data = await res.json();
+            setScheduledPosts((prev) =>
+              prev.map((p) => (p.id === existingPost.id ? data.scheduledPost : p))
+            );
+            setAllItems((prev) =>
+              prev.map((i) =>
+                i.id === scheduleItem.id
+                  ? {
+                      ...i,
+                      scheduled_post: {
+                        scheduled_date: scheduleDate,
+                        scheduled_time: scheduleTime || null,
+                      },
+                    }
+                  : i
+              )
+            );
+          }
+        }
+      } else {
+        // Create new schedule
+        const res = await fetch("/api/schedule", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            platform_content_id: scheduleItem.id,
+            scheduled_date: scheduleDate,
+            scheduled_time: scheduleTime || null,
+          }),
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setScheduledPosts((prev) => [...prev, data.scheduledPost]);
+          setAllItems((prev) =>
+            prev.map((i) =>
+              i.id === scheduleItem.id
+                ? {
+                    ...i,
+                    scheduled_post: {
+                      scheduled_date: scheduleDate,
+                      scheduled_time: scheduleTime || null,
+                    },
+                  }
+                : i
+            )
+          );
+        }
+      }
+    } catch (error) {
+      console.error("Error saving schedule:", error);
+    } finally {
+      setScheduleSaving(false);
+      setScheduleItem(null);
     }
   }
 
@@ -708,7 +794,10 @@ export default function CalendarPage() {
                               {getPlatformLabel(item.platform)}
                             </span>
                             {item.scheduled_post && (
-                              <span className="text-xs text-muted-foreground">
+                              <span
+                                className="text-xs text-muted-foreground cursor-pointer hover:underline"
+                                onClick={(e) => { e.stopPropagation(); openScheduleDialog(item); }}
+                              >
                                 📅 {item.scheduled_post.scheduled_date}
                               </span>
                             )}
@@ -720,6 +809,15 @@ export default function CalendarPage() {
                           </div>
                         </div>
                         <div className="flex items-center gap-0.5 shrink-0">
+                          <button
+                            type="button"
+                            className="h-7 w-7 flex items-center justify-center rounded hover:bg-black/10 transition-colors"
+                            onClick={(e) => { e.stopPropagation(); openScheduleDialog(item); }}
+                            onMouseDown={(e) => e.stopPropagation()}
+                            title="设置排期"
+                          >
+                            <CalendarIcon className="h-3.5 w-3.5" />
+                          </button>
                           <button
                             type="button"
                             className="h-7 w-7 flex items-center justify-center rounded hover:bg-black/10 transition-colors"
@@ -1071,6 +1169,75 @@ export default function CalendarPage() {
                   <Check className="h-4 w-4 mr-1" />
                   发布并移至今日
                 </Button>
+              </div>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Schedule dialog */}
+      <Dialog
+        open={!!scheduleItem}
+        onOpenChange={(open) => !open && setScheduleItem(null)}
+      >
+        <DialogContent className="max-w-sm">
+          {scheduleItem && (
+            <>
+              <DialogHeader>
+                <DialogTitle>设置发布时间</DialogTitle>
+                <DialogDescription>
+                  {scheduleItem.content_entry.title ||
+                    scheduleItem.content_entry.hot_topic?.title ||
+                    "无标题"}
+                </DialogDescription>
+              </DialogHeader>
+              <div className="space-y-4 mt-4">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">日期</label>
+                  <Input
+                    type="date"
+                    value={scheduleDate}
+                    onChange={(e) => setScheduleDate(e.target.value)}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">时间（可选）</label>
+                  <Input
+                    type="time"
+                    value={scheduleTime}
+                    onChange={(e) => setScheduleTime(e.target.value)}
+                  />
+                </div>
+                <div className="flex justify-end gap-2">
+                  <Button
+                    variant="ghost"
+                    onClick={() => setScheduleItem(null)}
+                  >
+                    取消
+                  </Button>
+                  {scheduleItem.scheduled_post && (
+                    <Button
+                      variant="outline"
+                      onClick={async () => {
+                        const existingPost = scheduledPosts.find(
+                          (p) => p.platform_content.id === scheduleItem.id
+                        );
+                        if (existingPost) {
+                          await handleRemoveSchedule(existingPost.id);
+                        }
+                        setScheduleItem(null);
+                      }}
+                    >
+                      取消排期
+                    </Button>
+                  )}
+                  <Button
+                    onClick={handleSaveSchedule}
+                    disabled={scheduleSaving || !scheduleDate}
+                  >
+                    {scheduleSaving ? "保存中..." : "确认排期"}
+                  </Button>
+                </div>
               </div>
             </>
           )}
