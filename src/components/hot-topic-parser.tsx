@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -19,6 +19,8 @@ const STORAGE_KEY = "hot-topic-parser-state";
 interface StoredState {
   text: string;
   topics: ParsedTopic[];
+  parsedText: string;
+  parsing?: boolean;
 }
 
 function loadStoredState(): StoredState | null {
@@ -58,21 +60,38 @@ interface HotTopicParserProps {
 export function HotTopicParser({ onComplete, onCancel }: HotTopicParserProps) {
   const stored = loadStoredState();
   const [text, setText] = useState(stored?.text ?? "");
-  const [parsing, setParsing] = useState(false);
+  const [parsing, setParsing] = useState(stored?.parsing ?? false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [topics, setTopics] = useState<ParsedTopic[]>(stored?.topics ?? []);
+  // Tracks which text was successfully parsed — determines whether to show results or input view
+  const [parsedText, setParsedText] = useState(stored?.parsedText ?? "");
 
-  // Persist text and topics to localStorage on change
+  // Persist to localStorage on change
   useEffect(() => {
-    saveStoredState({ text, topics });
-  }, [text, topics]);
+    saveStoredState({ text, topics, parsedText, parsing });
+  }, [text, topics, parsedText, parsing]);
+
+  // Re-trigger parse if page was refreshed during analysis
+  useEffect(() => {
+    if (stored?.parsing && text.trim()) {
+      handleParse();
+    }
+  }, []); // only on mount
+
+  // Clear parsedText when text is edited (so stale parse results don't show)
+  useEffect(() => {
+    if (parsedText && text !== parsedText) {
+      setParsedText("");
+    }
+  }, [text]); // intentionally excludes parsedText to avoid loop
 
   async function handleParse() {
     if (!text.trim()) return;
     setParsing(true);
     setError("");
     setTopics([]);
+    setParsedText("");
 
     try {
       const res = await fetch("/api/hot-topics/parse", {
@@ -88,6 +107,7 @@ export function HotTopicParser({ onComplete, onCancel }: HotTopicParserProps) {
       }
 
       setTopics(data.topics || []);
+      setParsedText(text);
       if (data.topics?.length === 0) {
         setError("未能从文本中解析出热点，请检查文本格式");
       }
@@ -157,8 +177,8 @@ export function HotTopicParser({ onComplete, onCancel }: HotTopicParserProps) {
     onCancel();
   }
 
-  // Show results view if we have parsed topics
-  if (topics.length > 0 || parsing) {
+  // Show results view if we have parsed topics for the current text
+  if ((text === parsedText && topics.length > 0) || parsing) {
     return (
       <div className="space-y-4">
         {error && (
