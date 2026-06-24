@@ -17,6 +17,7 @@ import {
   AlertCircle,
   Copy,
   Check,
+  ChevronsUpDown,
 } from "lucide-react";
 
 interface HotTopic {
@@ -65,6 +66,7 @@ export default function CreatePage() {
   );
   const [error, setError] = useState<string | null>(null);
   const [copiedPlatform, setCopiedPlatform] = useState<string | null>(null);
+  const [expandAll, setExpandAll] = useState(false);
 
   const PLATFORMS = ["x", "weibo", "xiaohongshu", "zhihu"];
   const PLATFORM_LABELS: Record<string, string> = {
@@ -442,37 +444,43 @@ export default function CreatePage() {
 
       {entry && entry.platforms.length > 0 && (
         <Card className="mt-6">
-          <CardHeader>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0">
             <CardTitle className="text-base">平台内容</CardTitle>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setExpandAll(!expandAll)}
+            >
+              <ChevronsUpDown className="h-4 w-4 mr-2" />
+              {expandAll ? "收起" : "展开全部"}
+            </Button>
           </CardHeader>
           <CardContent>
-            <Tabs value={activeTab} onValueChange={setActiveTab}>
-              <TabsList>
+            {expandAll ? (
+              <div className="space-y-6">
                 {entry.platforms.map((p) => (
-                  <TabsTrigger key={p.platform} value={p.platform}>
-                    {PLATFORM_LABELS[p.platform]}
-                  </TabsTrigger>
-                ))}
-              </TabsList>
-              {entry.platforms.map((p) => (
-                <TabsContent key={p.platform} value={p.platform}>
-                  <div className="space-y-4">
+                  <div key={p.platform} className="space-y-4">
                     <div className="flex items-center justify-between">
-                      <Badge
-                        variant={
-                          p.status === "draft"
-                            ? "secondary"
+                      <div className="flex items-center gap-2">
+                        <h4 className="font-medium">
+                          {PLATFORM_LABELS[p.platform]}
+                        </h4>
+                        <Badge
+                          variant={
+                            p.status === "draft"
+                              ? "secondary"
+                              : p.status === "ready"
+                                ? "default"
+                                : "outline"
+                          }
+                        >
+                          {p.status === "draft"
+                            ? "草稿"
                             : p.status === "ready"
-                              ? "default"
-                              : "outline"
-                        }
-                      >
-                        {p.status === "draft"
-                          ? "草稿"
-                          : p.status === "ready"
-                            ? "就绪"
-                            : "已发布"}
-                      </Badge>
+                              ? "就绪"
+                              : "已发布"}
+                        </Badge>
+                      </div>
                       <div className="flex gap-2">
                         <Button
                           variant="outline"
@@ -516,9 +524,83 @@ export default function CreatePage() {
                       {p.formatted || "暂无内容，请先生成"}
                     </div>
                   </div>
-                </TabsContent>
-              ))}
-            </Tabs>
+                ))}
+              </div>
+            ) : (
+              <Tabs value={activeTab} onValueChange={setActiveTab}>
+                <TabsList>
+                  {entry.platforms.map((p) => (
+                    <TabsTrigger key={p.platform} value={p.platform}>
+                      {PLATFORM_LABELS[p.platform]}
+                    </TabsTrigger>
+                  ))}
+                </TabsList>
+                {entry.platforms.map((p) => (
+                  <TabsContent key={p.platform} value={p.platform}>
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between">
+                        <Badge
+                          variant={
+                            p.status === "draft"
+                              ? "secondary"
+                              : p.status === "ready"
+                                ? "default"
+                                : "outline"
+                          }
+                        >
+                          {p.status === "draft"
+                            ? "草稿"
+                            : p.status === "ready"
+                              ? "就绪"
+                              : "已发布"}
+                        </Badge>
+                        <div className="flex gap-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleCopy(p.formatted, p.platform)}
+                            disabled={!p.formatted}
+                          >
+                            {copiedPlatform === p.platform ? (
+                              <>
+                                <Check className="h-4 w-4 mr-2 text-green-500" />
+                                已复制
+                              </>
+                            ) : (
+                              <>
+                                <Copy className="h-4 w-4 mr-2" />
+                                复制
+                              </>
+                            )}
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleRegeneratePlatform(p.platform)}
+                            disabled={generating}
+                          >
+                            {generating ? (
+                              <>
+                                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                                生成中...
+                              </>
+                            ) : (
+                              <>
+                                <RefreshCw className="h-4 w-4 mr-2" />
+                                重新生成
+                              </>
+                            )}
+                          </Button>
+                        </div>
+                      </div>
+                      <div className="bg-muted p-4 rounded-md whitespace-pre-wrap text-sm">
+                        {p.formatted || "暂无内容，请先生成"}
+                      </div>
+                    </div>
+                  </TabsContent>
+                ))}
+              </Tabs>
+            )}
           </CardContent>
         </Card>
       )}
