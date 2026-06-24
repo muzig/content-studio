@@ -45,10 +45,24 @@ export async function POST(
       );
     }
 
+    const body = await request.json().catch(() => ({}));
+    const requestedPlatforms: string[] | undefined = body.platforms;
+
+    const filteredRules = requestedPlatforms
+      ? platformRules.filter((r) => requestedPlatforms.includes(r.platform))
+      : platformRules;
+
+    if (filteredRules.length === 0) {
+      return NextResponse.json(
+        { error: "No matching platform rules found" },
+        { status: 400 }
+      );
+    }
+
     const results = await generateForAllPlatforms(
       hotTopicContent,
       entry.body,
-      platformRules
+      filteredRules
     );
 
     const platformContents = await Promise.all(

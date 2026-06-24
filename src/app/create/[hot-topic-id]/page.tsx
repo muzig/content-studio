@@ -184,10 +184,15 @@ export default function CreatePage() {
   }
 
   async function handleRegeneratePlatform(platform: string) {
-    if (!entry) return;
+    setError(null);
+
+    let entryId = entry?.id;
+    if (!entryId) {
+      entryId = await handleSave();
+    }
+    if (!entryId) return;
 
     setGenerating(true);
-    setError(null);
     setGenerationStatus(
       PLATFORMS.map((p) => ({
         platform: p,
@@ -196,7 +201,7 @@ export default function CreatePage() {
     );
 
     try {
-      const res = await fetch(`/api/entries/${entry.id}/generate`, {
+      const res = await fetch(`/api/entries/${entryId}/generate`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ platforms: [platform] }),
@@ -206,9 +211,13 @@ export default function CreatePage() {
         const data = await res.json();
         setEntry((prev) => {
           if (!prev) return prev;
-          const updatedPlatforms = prev.platforms.map((p) =>
-            p.platform === platform ? data.platforms[0] : p
-          );
+          const newPlatform = data.platforms[0];
+          const exists = prev.platforms.some((p) => p.platform === platform);
+          const updatedPlatforms = exists
+            ? prev.platforms.map((p) =>
+                p.platform === platform ? newPlatform : p
+              )
+            : [...prev.platforms, newPlatform];
           return { ...prev, platforms: updatedPlatforms };
         });
         setGenerationStatus((prev) =>
@@ -333,6 +342,37 @@ export default function CreatePage() {
                   </>
                 )}
               </Button>
+            </div>
+            <div className="flex gap-2">
+              {PLATFORMS.map((platform) => {
+                const isGenerating =
+                  generating &&
+                  generationStatus.some(
+                    (s) => s.platform === platform && s.status === "generating"
+                  );
+                return (
+                  <Button
+                    key={platform}
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleRegeneratePlatform(platform)}
+                    disabled={generating}
+                    className="flex-1"
+                  >
+                    {isGenerating ? (
+                      <>
+                        <Loader2 className="h-3 w-3 mr-1 animate-spin" />
+                        {PLATFORM_LABELS[platform]}
+                      </>
+                    ) : (
+                      <>
+                        <Sparkles className="h-3 w-3 mr-1" />
+                        生成{PLATFORM_LABELS[platform]}
+                      </>
+                    )}
+                  </Button>
+                );
+              })}
             </div>
 
             {generating && generationStatus.length > 0 && (
