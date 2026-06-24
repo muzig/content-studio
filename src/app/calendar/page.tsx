@@ -661,18 +661,24 @@ export default function CalendarPage() {
                           return (
                             <div
                               key={post.id}
-                              className={`text-xs p-1 rounded cursor-pointer hover:opacity-80 flex items-center justify-between ${
+                              className={`text-xs p-1.5 rounded cursor-pointer hover:opacity-80 ${
                                 overdue
                                   ? "bg-destructive/20 text-destructive border border-destructive/40"
                                   : getPlatformColor(post.platform_content.platform)
                               }`}
                               onClick={() => setPreviewScheduled(post)}
                             >
-                              <span className="flex items-center gap-1">
-                                {overdue && <AlertTriangle className="h-3 w-3" />}
-                                {getPlatformLabel(post.platform_content.platform)}
-                              </span>
-                              <Eye className="h-3 w-3" />
+                              <div className="flex items-center justify-between">
+                                <span className="flex items-center gap-1 font-medium">
+                                  {overdue && <AlertTriangle className="h-3 w-3" />}
+                                  {getPlatformLabel(post.platform_content.platform)}
+                                </span>
+                              </div>
+                              <div className="truncate mt-0.5">
+                                {post.platform_content.content_entry.title ||
+                                  post.platform_content.content_entry.hot_topic?.title ||
+                                  "无标题"}
+                              </div>
                             </div>
                           );
                         })}
