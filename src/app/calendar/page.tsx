@@ -674,10 +674,13 @@ export default function CalendarPage() {
                                   {getPlatformLabel(post.platform_content.platform)}
                                 </span>
                               </div>
+                              {post.platform_content.content_entry.hot_topic?.title && (
+                                <div className="truncate mt-0.5 text-muted-foreground">
+                                  🔥 {post.platform_content.content_entry.hot_topic.title}
+                                </div>
+                              )}
                               <div className="truncate mt-0.5">
-                                {post.platform_content.content_entry.title ||
-                                  post.platform_content.content_entry.hot_topic?.title ||
-                                  "无标题"}
+                                {post.platform_content.content_entry.title || "无标题"}
                               </div>
                             </div>
                           );
@@ -750,9 +753,8 @@ export default function CalendarPage() {
                     <div className="flex flex-wrap gap-2">
                       {posts.map((post) => {
                         const overdue = isOverdue(post);
-                        const title = post.platform_content.content_entry.title ||
-                          post.platform_content.content_entry.hot_topic?.title ||
-                          "无标题";
+                        const hotTitle = post.platform_content.content_entry.hot_topic?.title;
+                        const title = post.platform_content.content_entry.title || "无标题";
                         const preview = post.platform_content.formatted?.slice(0, 80) || "";
                         return (
                           <div
@@ -775,6 +777,9 @@ export default function CalendarPage() {
                                 <Check className="h-3 w-3 text-green-600" />
                               )}
                             </div>
+                            {hotTitle && (
+                              <div className="truncate text-muted-foreground">🔥 {hotTitle}</div>
+                            )}
                             <div className="font-medium truncate">{title}</div>
                             {preview && (
                               <div className="text-muted-foreground line-clamp-2 mt-0.5">
