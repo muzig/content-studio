@@ -68,6 +68,21 @@ async function main() {
         requireLogic: true,
       }),
     },
+    {
+      platform: "gongzhonghao",
+      label: "公众号",
+      style: "深度思考，观点独到，有信息增量。语言流畅易读，适合碎片化阅读场景。",
+      structure:
+        "引人入胜的开头（故事/问题/数据）→ 核心观点阐述 → 分层论证（2-3个要点）→ 每个要点配案例或数据 → 总结金句收尾 → 可选：延伸思考。",
+      constraints: JSON.stringify({
+        maxLength: 5000,
+        emojiUsage: "minimal",
+        hashtagLimit: 0,
+        paragraphLength: "medium",
+        tone: "thoughtful",
+        requireStructure: true,
+      }),
+    },
   ];
 
   for (const rule of rules) {

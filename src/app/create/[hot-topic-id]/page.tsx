@@ -5,7 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
   ArrowLeft,
@@ -18,6 +18,9 @@ import {
   Copy,
   Check,
   ChevronsUpDown,
+  ChevronDown,
+  ChevronUp,
+  Flame,
 } from "lucide-react";
 
 interface HotTopic {
@@ -49,6 +52,22 @@ interface GenerationStatus {
   message?: string;
 }
 
+const PLATFORMS = ["x", "weibo", "xiaohongshu", "zhihu", "gongzhonghao"];
+const PLATFORM_LABELS: Record<string, string> = {
+  x: "X",
+  weibo: "微博",
+  xiaohongshu: "小红书",
+  zhihu: "知乎",
+  gongzhonghao: "公众号",
+};
+const PLATFORM_COLORS: Record<string, string> = {
+  x: "bg-blue-500 hover:bg-blue-600 text-white",
+  weibo: "bg-orange-500 hover:bg-orange-600 text-white",
+  xiaohongshu: "bg-red-500 hover:bg-red-600 text-white",
+  zhihu: "bg-purple-500 hover:bg-purple-600 text-white",
+  gongzhonghao: "bg-green-500 hover:bg-green-600 text-white",
+};
+
 export default function CreatePage() {
   const params = useParams();
   const router = useRouter();
@@ -67,14 +86,7 @@ export default function CreatePage() {
   const [error, setError] = useState<string | null>(null);
   const [copiedPlatform, setCopiedPlatform] = useState<string | null>(null);
   const [expandAll, setExpandAll] = useState(false);
-
-  const PLATFORMS = ["x", "weibo", "xiaohongshu", "zhihu"];
-  const PLATFORM_LABELS: Record<string, string> = {
-    x: "X",
-    weibo: "微博",
-    xiaohongshu: "小红书",
-    zhihu: "知乎",
-  };
+  const [topicExpanded, setTopicExpanded] = useState(true);
 
   const fetchData = useCallback(async () => {
     try {
@@ -283,7 +295,7 @@ export default function CreatePage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-full">
-        <p className="text-muted-foreground">加载中...</p>
+        <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
       </div>
     );
   }
@@ -297,313 +309,364 @@ export default function CreatePage() {
   }
 
   const tags = hotTopic.tags ? JSON.parse(hotTopic.tags) : [];
+  const hasPlatforms = entry && entry.platforms.length > 0;
 
   return (
-    <div className="max-w-5xl mx-auto px-4 lg:px-6 py-8">
-      <div className="flex items-center gap-4 mb-6">
-        <Button variant="ghost" size="sm" onClick={() => router.push("/hot-topics")}>
-          <ArrowLeft className="h-4 w-4 mr-2" />
-          返回
+    <div className="max-w-4xl mx-auto px-4 lg:px-6 py-6 space-y-6">
+      {/* Header */}
+      <div className="flex items-center gap-3">
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => router.push("/hot-topics")}
+          className="shrink-0"
+        >
+          <ArrowLeft className="h-4 w-4" />
         </Button>
-        <h2 className="text-xl font-semibold">内容创作</h2>
+        <h1 className="text-lg font-semibold">内容创作</h1>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">热点原文</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <h3 className="font-medium mb-2">{hotTopic.title}</h3>
-            {hotTopic.content && (
-              <p className="text-sm text-muted-foreground mb-3 whitespace-pre-wrap">
-                {hotTopic.content}
-              </p>
-            )}
+      {/* Step 1: Hot Topic */}
+      <section>
+        <button
+          type="button"
+          className="w-full flex items-center justify-between px-4 py-3 bg-muted/50 rounded-lg hover:bg-muted/70 transition-colors text-left"
+          onClick={() => setTopicExpanded(!topicExpanded)}
+        >
+          <div className="flex items-center gap-2 min-w-0">
+            <Flame className="h-4 w-4 text-orange-500 shrink-0" />
+            <span className="text-sm font-medium truncate">
+              {hotTopic.title}
+            </span>
             {tags.length > 0 && (
-              <div className="flex flex-wrap gap-2">
-                {tags.map((tag: string, index: number) => (
-                  <Badge key={index} variant="secondary" className="text-xs">
+              <div className="hidden sm:flex gap-1 ml-2">
+                {tags.slice(0, 3).map((tag: string, i: number) => (
+                  <Badge
+                    key={i}
+                    variant="secondary"
+                    className="text-[10px] px-1.5 py-0"
+                  >
                     {tag}
                   </Badge>
                 ))}
               </div>
             )}
-          </CardContent>
-        </Card>
+          </div>
+          {topicExpanded ? (
+            <ChevronUp className="h-4 w-4 text-muted-foreground shrink-0" />
+          ) : (
+            <ChevronDown className="h-4 w-4 text-muted-foreground shrink-0" />
+          )}
+        </button>
 
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">我的评论</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <Textarea
-              placeholder="写下你对这条热点的评论或想法..."
-              value={comment}
-              onChange={(e) => setComment(e.target.value)}
-              rows={6}
-              disabled={generating}
-            />
-            <p className="text-xs text-muted-foreground">
-              写得越多，AI 越侧重润色；写得越少，AI 越会展开创作
-            </p>
-            <div className="flex gap-2">
-              <Button onClick={handleSave} disabled={saving || generating} className="flex-1">
-                <Save className="h-4 w-4 mr-2" />
-                {saving ? "保存中..." : "保存草稿"}
-              </Button>
-              <Button
-                onClick={handleGenerate}
-                disabled={generating}
-                className="flex-1"
-              >
-                {generating ? (
-                  <>
-                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                    生成中...
-                  </>
-                ) : (
-                  <>
-                    <Sparkles className="h-4 w-4 mr-2" />
-                    生成全部平台
-                  </>
-                )}
-              </Button>
-            </div>
-            <div className="flex gap-2">
-              {PLATFORMS.map((platform) => {
-                const isGenerating =
-                  generating &&
-                  generationStatus.some(
-                    (s) => s.platform === platform && s.status === "generating"
-                  );
-                return (
-                  <Button
-                    key={platform}
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleRegeneratePlatform(platform)}
-                    disabled={generating}
-                    className="flex-1"
-                  >
-                    {isGenerating ? (
-                      <>
-                        <Loader2 className="h-3 w-3 mr-1 animate-spin" />
-                        {PLATFORM_LABELS[platform]}
-                      </>
-                    ) : (
-                      <>
-                        <Sparkles className="h-3 w-3 mr-1" />
-                        生成{PLATFORM_LABELS[platform]}
-                      </>
-                    )}
-                  </Button>
-                );
-              })}
-            </div>
-
-            {generating && generationStatus.length > 0 && (
-              <div className="mt-4 p-3 bg-muted rounded-md space-y-2">
-                <p className="text-sm font-medium">生成进度</p>
-                {generationStatus.filter((s) => s.status !== "pending").map((s) => (
-                  <div key={s.platform} className="flex items-center gap-2 text-sm">
-                    {s.status === "pending" && (
-                      <Loader2 className="h-3 w-3 animate-spin text-muted-foreground" />
-                    )}
-                    {s.status === "generating" && (
-                      <Loader2 className="h-3 w-3 animate-spin text-blue-500" />
-                    )}
-                    {s.status === "success" && (
-                      <CheckCircle2 className="h-3 w-3 text-green-500" />
-                    )}
-                    {s.status === "error" && (
-                      <AlertCircle className="h-3 w-3 text-red-500" />
-                    )}
-                    <span>
-                      {PLATFORM_LABELS[s.platform]}
-                      {s.status === "generating" && " - 生成中..."}
-                      {s.status === "success" && " - 完成"}
-                      {s.status === "error" && ` - 失败: ${s.message}`}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {error && !generating && (
-              <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-md">
-                <div className="flex items-center gap-2">
-                  <AlertCircle className="h-4 w-4 text-red-500" />
-                  <p className="text-sm text-red-700">{error}</p>
+        {topicExpanded && hotTopic.content && (
+          <Card className="mt-2">
+            <CardContent className="pt-4">
+              <p className="text-sm text-muted-foreground whitespace-pre-wrap leading-relaxed">
+                {hotTopic.content}
+              </p>
+              {tags.length > 0 && (
+                <div className="flex flex-wrap gap-1.5 mt-3 pt-3 border-t">
+                  {tags.map((tag: string, i: number) => (
+                    <Badge key={i} variant="outline" className="text-xs">
+                      {tag}
+                    </Badge>
+                  ))}
                 </div>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-      </div>
+              )}
+            </CardContent>
+          </Card>
+        )}
+      </section>
 
-      {entry && entry.platforms.length > 0 && (
-        <Card className="mt-6">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0">
-            <CardTitle className="text-base">平台内容</CardTitle>
+      {/* Step 2: Comment */}
+      <section className="space-y-3">
+        <div className="flex items-center justify-between">
+          <h2 className="text-sm font-medium text-muted-foreground">
+            我的观点
+          </h2>
+          <span className="text-xs text-muted-foreground">
+            写得越多，AI 越侧重润色
+          </span>
+        </div>
+        <Textarea
+          placeholder="写下你对这条热点的看法..."
+          value={comment}
+          onChange={(e) => setComment(e.target.value)}
+          rows={5}
+          disabled={generating}
+          className="resize-none text-sm leading-relaxed"
+        />
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleSave}
+            disabled={saving || generating}
+          >
+            <Save className="h-3.5 w-3.5 mr-1.5" />
+            {saving ? "保存中" : "保存"}
+          </Button>
+        </div>
+      </section>
+
+      {/* Step 3: Generate */}
+      <section className="space-y-3">
+        <div className="flex items-center justify-between">
+          <h2 className="text-sm font-medium text-muted-foreground">
+            生成内容
+          </h2>
+          {generating && generationStatus.length > 0 && (
+            <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+              <Loader2 className="h-3 w-3 animate-spin" />
+              生成中...
+            </div>
+          )}
+        </div>
+
+        {/* Generate All - Primary Action */}
+        <Button
+          onClick={handleGenerate}
+          disabled={generating}
+          className="w-full h-11 text-sm font-medium"
+        >
+          {generating ? (
+            <>
+              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              正在生成全部平台...
+            </>
+          ) : (
+            <>
+              <Sparkles className="h-4 w-4 mr-2" />
+              生成全部平台
+            </>
+          )}
+        </Button>
+
+        {/* Individual Platform Buttons */}
+        <div className="grid grid-cols-5 gap-2">
+          {PLATFORMS.map((platform) => {
+            const isGenerating =
+              generating &&
+              generationStatus.some(
+                (s) => s.platform === platform && s.status === "generating"
+              );
+            const isSuccess =
+              generating &&
+              generationStatus.some(
+                (s) => s.platform === platform && s.status === "success"
+              );
+            return (
+              <Button
+                key={platform}
+                variant="outline"
+                size="sm"
+                onClick={() => handleRegeneratePlatform(platform)}
+                disabled={generating}
+                className="h-9 text-xs"
+              >
+                {isGenerating ? (
+                  <Loader2 className="h-3 w-3 mr-1 animate-spin" />
+                ) : isSuccess ? (
+                  <CheckCircle2 className="h-3 w-3 mr-1 text-green-500" />
+                ) : (
+                  <Sparkles className="h-3 w-3 mr-1" />
+                )}
+                {PLATFORM_LABELS[platform]}
+              </Button>
+            );
+          })}
+        </div>
+
+        {/* Generation Progress */}
+        {generating && generationStatus.length > 0 && (
+          <div className="flex flex-wrap gap-x-4 gap-y-1 px-1">
+            {generationStatus.map((s) => (
+              <div
+                key={s.platform}
+                className="flex items-center gap-1.5 text-xs"
+              >
+                {s.status === "pending" && (
+                  <span className="h-1.5 w-1.5 rounded-full bg-muted-foreground/30" />
+                )}
+                {s.status === "generating" && (
+                  <Loader2 className="h-3 w-3 animate-spin text-blue-500" />
+                )}
+                {s.status === "success" && (
+                  <CheckCircle2 className="h-3 w-3 text-green-500" />
+                )}
+                {s.status === "error" && (
+                  <AlertCircle className="h-3 w-3 text-red-500" />
+                )}
+                <span
+                  className={
+                    s.status === "error"
+                      ? "text-red-500"
+                      : s.status === "success"
+                        ? "text-green-600"
+                        : "text-muted-foreground"
+                  }
+                >
+                  {PLATFORM_LABELS[s.platform]}
+                  {s.status === "generating" && " 生成中"}
+                  {s.status === "success" && " ✓"}
+                  {s.status === "error" && ` 失败`}
+                </span>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Error */}
+        {error && !generating && (
+          <div className="flex items-center gap-2 p-3 bg-red-50 border border-red-200 rounded-lg text-sm">
+            <AlertCircle className="h-4 w-4 text-red-500 shrink-0" />
+            <p className="text-red-700">{error}</p>
+          </div>
+        )}
+      </section>
+
+      {/* Step 4: Platform Content */}
+      {hasPlatforms && (
+        <section className="space-y-3">
+          <div className="flex items-center justify-between">
+            <h2 className="text-sm font-medium text-muted-foreground">
+              平台内容
+            </h2>
             <Button
               variant="ghost"
               size="sm"
               onClick={() => setExpandAll(!expandAll)}
+              className="h-7 text-xs"
             >
-              <ChevronsUpDown className="h-4 w-4 mr-2" />
+              <ChevronsUpDown className="h-3.5 w-3.5 mr-1" />
               {expandAll ? "收起" : "展开全部"}
             </Button>
-          </CardHeader>
-          <CardContent>
-            {expandAll ? (
-              <div className="space-y-6">
+          </div>
+
+          {expandAll ? (
+            <div className="space-y-4">
+              {entry.platforms.map((p) => (
+                <PlatformBlock
+                  key={p.platform}
+                  platform={p}
+                  generating={generating}
+                  copiedPlatform={copiedPlatform}
+                  onCopy={handleCopy}
+                  onRegenerate={handleRegeneratePlatform}
+                />
+              ))}
+            </div>
+          ) : (
+            <Tabs value={activeTab} onValueChange={setActiveTab}>
+              <TabsList className="w-full justify-start h-auto gap-1 bg-transparent p-0 flex-wrap">
                 {entry.platforms.map((p) => (
-                  <div key={p.platform} className="space-y-4">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <h4 className="font-medium">
-                          {PLATFORM_LABELS[p.platform]}
-                        </h4>
-                        <Badge
-                          variant={
-                            p.status === "draft"
-                              ? "secondary"
-                              : p.status === "ready"
-                                ? "default"
-                                : "outline"
-                          }
-                        >
-                          {p.status === "draft"
-                            ? "草稿"
-                            : p.status === "ready"
-                              ? "就绪"
-                              : "已发布"}
-                        </Badge>
-                      </div>
-                      <div className="flex gap-2">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleCopy(p.formatted, p.platform)}
-                          disabled={!p.formatted}
-                        >
-                          {copiedPlatform === p.platform ? (
-                            <>
-                              <Check className="h-4 w-4 mr-2 text-green-500" />
-                              已复制
-                            </>
-                          ) : (
-                            <>
-                              <Copy className="h-4 w-4 mr-2" />
-                              复制
-                            </>
-                          )}
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleRegeneratePlatform(p.platform)}
-                          disabled={generating}
-                        >
-                          {generating ? (
-                            <>
-                              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                              生成中...
-                            </>
-                          ) : (
-                            <>
-                              <RefreshCw className="h-4 w-4 mr-2" />
-                              重新生成
-                            </>
-                          )}
-                        </Button>
-                      </div>
-                    </div>
-                    <div className="bg-muted p-4 rounded-md whitespace-pre-wrap text-sm">
-                      {p.formatted || "暂无内容，请先生成"}
-                    </div>
-                  </div>
+                  <TabsTrigger
+                    key={p.platform}
+                    value={p.platform}
+                    className="text-xs px-3 py-1.5 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-md"
+                  >
+                    {PLATFORM_LABELS[p.platform]}
+                  </TabsTrigger>
                 ))}
-              </div>
-            ) : (
-              <Tabs value={activeTab} onValueChange={setActiveTab}>
-                <TabsList>
-                  {entry.platforms.map((p) => (
-                    <TabsTrigger key={p.platform} value={p.platform}>
-                      {PLATFORM_LABELS[p.platform]}
-                    </TabsTrigger>
-                  ))}
-                </TabsList>
-                {entry.platforms.map((p) => (
-                  <TabsContent key={p.platform} value={p.platform}>
-                    <div className="space-y-4">
-                      <div className="flex items-center justify-between">
-                        <Badge
-                          variant={
-                            p.status === "draft"
-                              ? "secondary"
-                              : p.status === "ready"
-                                ? "default"
-                                : "outline"
-                          }
-                        >
-                          {p.status === "draft"
-                            ? "草稿"
-                            : p.status === "ready"
-                              ? "就绪"
-                              : "已发布"}
-                        </Badge>
-                        <div className="flex gap-2">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => handleCopy(p.formatted, p.platform)}
-                            disabled={!p.formatted}
-                          >
-                            {copiedPlatform === p.platform ? (
-                              <>
-                                <Check className="h-4 w-4 mr-2 text-green-500" />
-                                已复制
-                              </>
-                            ) : (
-                              <>
-                                <Copy className="h-4 w-4 mr-2" />
-                                复制
-                              </>
-                            )}
-                          </Button>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => handleRegeneratePlatform(p.platform)}
-                            disabled={generating}
-                          >
-                            {generating ? (
-                              <>
-                                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                                生成中...
-                              </>
-                            ) : (
-                              <>
-                                <RefreshCw className="h-4 w-4 mr-2" />
-                                重新生成
-                              </>
-                            )}
-                          </Button>
-                        </div>
-                      </div>
-                      <div className="bg-muted p-4 rounded-md whitespace-pre-wrap text-sm">
-                        {p.formatted || "暂无内容，请先生成"}
-                      </div>
-                    </div>
-                  </TabsContent>
-                ))}
-              </Tabs>
-            )}
-          </CardContent>
-        </Card>
+              </TabsList>
+              {entry.platforms.map((p) => (
+                <TabsContent key={p.platform} value={p.platform} className="mt-3">
+                  <PlatformBlock
+                    platform={p}
+                    generating={generating}
+                    copiedPlatform={copiedPlatform}
+                    onCopy={handleCopy}
+                    onRegenerate={handleRegeneratePlatform}
+                  />
+                </TabsContent>
+              ))}
+            </Tabs>
+          )}
+        </section>
       )}
+    </div>
+  );
+}
+
+function PlatformBlock({
+  platform,
+  generating,
+  copiedPlatform,
+  onCopy,
+  onRegenerate,
+}: {
+  platform: PlatformContent;
+  generating: boolean;
+  copiedPlatform: string | null;
+  onCopy: (content: string, platform: string) => void;
+  onRegenerate: (platform: string) => void;
+}) {
+  return (
+    <div className="rounded-lg border bg-card overflow-hidden">
+      <div className="flex items-center justify-between px-4 py-2.5 border-b bg-muted/30">
+        <div className="flex items-center gap-2">
+          <span className="text-sm font-medium">
+            {PLATFORM_LABELS[platform.platform]}
+          </span>
+          <Badge
+            variant={
+              platform.status === "draft"
+                ? "secondary"
+                : platform.status === "ready"
+                  ? "default"
+                  : "outline"
+            }
+            className="text-[10px] px-1.5 py-0"
+          >
+            {platform.status === "draft"
+              ? "草稿"
+              : platform.status === "ready"
+                ? "就绪"
+                : "已发布"}
+          </Badge>
+        </div>
+        <div className="flex items-center gap-1">
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-7 px-2 text-xs"
+            onClick={() => onCopy(platform.formatted, platform.platform)}
+            disabled={!platform.formatted}
+          >
+            {copiedPlatform === platform.platform ? (
+              <>
+                <Check className="h-3.5 w-3.5 mr-1 text-green-500" />
+                已复制
+              </>
+            ) : (
+              <>
+                <Copy className="h-3.5 w-3.5 mr-1" />
+                复制
+              </>
+            )}
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-7 px-2 text-xs"
+            onClick={() => onRegenerate(platform.platform)}
+            disabled={generating}
+          >
+            <RefreshCw className="h-3.5 w-3.5 mr-1" />
+            重新生成
+          </Button>
+        </div>
+      </div>
+      <div className="p-4">
+        <div className="text-sm whitespace-pre-wrap leading-relaxed text-foreground/90">
+          {platform.formatted || (
+            <span className="text-muted-foreground italic">
+              暂无内容，请先生成
+            </span>
+          )}
+        </div>
+      </div>
     </div>
   );
 }

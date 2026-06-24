@@ -29,6 +29,7 @@ const PLATFORM_LABELS: Record<string, string> = {
   weibo: "微博",
   xiaohongshu: "小红书",
   zhihu: "知乎",
+  gongzhonghao: "公众号",
 };
 
 const STATUS_NEXT: Record<string, string> = {

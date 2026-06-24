@@ -75,6 +75,7 @@ function getPlatformLabel(platform: string): string {
     weibo: "微博",
     xiaohongshu: "小红书",
     zhihu: "知乎",
+    gongzhonghao: "公众号",
   };
   return labels[platform] || platform;
 }
@@ -85,6 +86,7 @@ function getPlatformColor(platform: string): string {
     weibo: "bg-orange-100 text-orange-800",
     xiaohongshu: "bg-red-100 text-red-800",
     zhihu: "bg-purple-100 text-purple-800",
+    gongzhonghao: "bg-green-100 text-green-800",
   };
   return colors[platform] || "bg-gray-100 text-gray-800";
 }
