@@ -66,7 +66,8 @@ export default function AnalyticsPage() {
 
   function getPlatformLabel(platform: string): string {
     const labels: Record<string, string> = {
-      tweets: "推文",
+      x: "X",
+      weibo: "微博",
       xiaohongshu: "小红书",
       zhihu: "知乎",
     };
@@ -75,7 +76,8 @@ export default function AnalyticsPage() {
 
   function getPlatformColor(platform: string): string {
     const colors: Record<string, string> = {
-      tweets: "text-blue-500",
+      x: "text-blue-500",
+      weibo: "text-orange-500",
       xiaohongshu: "text-red-500",
       zhihu: "text-purple-500",
     };

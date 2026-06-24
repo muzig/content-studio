@@ -25,7 +25,8 @@ interface PublishItem {
 }
 
 const PLATFORM_LABELS: Record<string, string> = {
-  tweets: "推文",
+  x: "X",
+  weibo: "微博",
   xiaohongshu: "小红书",
   zhihu: "知乎",
 };

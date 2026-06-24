@@ -9,7 +9,8 @@ import { PlatformToggle } from "@/components/platform-toggle";
 import type { Platform } from "@/lib/types";
 
 const PLATFORM_LABELS = [
-  { value: "tweets", label: "推文" },
+  { value: "x", label: "X" },
+  { value: "weibo", label: "微博" },
   { value: "xiaohongshu", label: "小红书" },
   { value: "zhihu", label: "知乎" },
 ];

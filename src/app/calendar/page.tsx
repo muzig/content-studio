@@ -71,7 +71,8 @@ function formatDate(date: Date): string {
 
 function getPlatformLabel(platform: string): string {
   const labels: Record<string, string> = {
-    tweets: "推文",
+    x: "X",
+    weibo: "微博",
     xiaohongshu: "小红书",
     zhihu: "知乎",
   };
@@ -80,7 +81,8 @@ function getPlatformLabel(platform: string): string {
 
 function getPlatformColor(platform: string): string {
   const colors: Record<string, string> = {
-    tweets: "bg-blue-100 text-blue-800",
+    x: "bg-blue-100 text-blue-800",
+    weibo: "bg-orange-100 text-orange-800",
     xiaohongshu: "bg-red-100 text-red-800",
     zhihu: "bg-purple-100 text-purple-800",
   };

@@ -11,8 +11,8 @@ async function main() {
 
   const rules = [
     {
-      platform: "tweets",
-      label: "推文",
+      platform: "x",
+      label: "X",
       style: "简洁有力，观点鲜明，直击要点。语言精炼，避免冗余。",
       structure:
         "单条推文280字以内；长内容可用thread拆分，每条独立可读；开头吸引注意力，结尾引发互动。",
@@ -22,6 +22,21 @@ async function main() {
         emojiUsage: "minimal",
         hashtagLimit: 3,
         tone: "concise",
+      }),
+    },
+    {
+      platform: "weibo",
+      label: "微博",
+      style: "轻松活泼，贴近生活，善用网络热词和表情。观点表达直接，互动感强。",
+      structure:
+        "开头引人注目 → 正文表达观点（可分段）→ 适当使用表情点缀 → 话题标签2-3个（#话题#格式）→ 结尾可引导转发评论。",
+      constraints: JSON.stringify({
+        maxLength: 2000,
+        emojiUsage: "moderate",
+        hashtagRange: [2, 3],
+        hashtagFormat: "#topic#",
+        paragraphLength: "short",
+        tone: "casual",
       }),
     },
     {
@@ -62,6 +77,28 @@ async function main() {
       create: rule,
     });
     console.log(`  ✓ ${rule.label} (${rule.platform})`);
+  }
+
+  // Migrate existing tweets data to x
+  try {
+    const migrated = await prisma.platformContent.updateMany({
+      where: { platform: "tweets" },
+      data: { platform: "x" },
+    });
+    if (migrated.count > 0) {
+      console.log(`  ✓ Migrated ${migrated.count} tweets records to x`);
+    }
+
+    // Also migrate any old platform_rules
+    const ruleMigrated = await prisma.platformRule.updateMany({
+      where: { platform: "tweets" },
+      data: { platform: "x", label: "X" },
+    });
+    if (ruleMigrated.count > 0) {
+      console.log(`  ✓ Migrated ${ruleMigrated.count} tweets rule to x`);
+    }
+  } catch {
+    // Tables might not have data yet
   }
 
   console.log("Seeding complete.");

@@ -1,10 +1,12 @@
 import type { Platform, PlatformTemplate } from "@/lib/types";
-import { tweetsTemplate } from "./tweets";
+import { xTemplate } from "./x";
+import { weiboTemplate } from "./weibo";
 import { xiaohongshuTemplate } from "./xiaohongshu";
 import { zhihuTemplate } from "./zhihu";
 
 const templates: Record<Platform, PlatformTemplate> = {
-  tweets: tweetsTemplate,
+  x: xTemplate,
+  weibo: weiboTemplate,
   xiaohongshu: xiaohongshuTemplate,
   zhihu: zhihuTemplate,
 };
