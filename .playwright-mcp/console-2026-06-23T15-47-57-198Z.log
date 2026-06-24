@@ -1,0 +1,313 @@
+[     118ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://localhost:3000/_next/static/chunks/0k5d_next_dist_1qmvpb9._.js:2477
+[     128ms] [LOG] [HMR] connected @ http://localhost:3000/_next/static/chunks/0k5d_next_dist_1qmvpb9._.js:2477
+[   31488ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0k5d_next_dist_1qmvpb9._.js:2477
+[   31500ms] [LOG] [Fast Refresh] done in 113ms @ http://localhost:3000/_next/static/chunks/0k5d_next_dist_1qmvpb9._.js:2477
+[   72262ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0k5d_next_dist_1qmvpb9._.js:2477
+[   72297ms] [LOG] [Fast Refresh] done in 82ms @ http://localhost:3000/_next/static/chunks/0k5d_next_dist_1qmvpb9._.js:2477
+[   72485ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0k5d_next_dist_1qmvpb9._.js:2477
+[   73509ms] [LOG] [Fast Refresh] done in 1125ms @ http://localhost:3000/_next/static/chunks/0k5d_next_dist_1qmvpb9._.js:2477
+[   73679ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0k5d_next_dist_1qmvpb9._.js:2477
+[   74012ms] [LOG] [Fast Refresh] done in 434ms @ http://localhost:3000/_next/static/chunks/0k5d_next_dist_1qmvpb9._.js:2477
+[  107481ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0k5d_next_dist_1qmvpb9._.js:2477
+[  107512ms] [LOG] [Fast Refresh] done in 75ms @ http://localhost:3000/_next/static/chunks/0k5d_next_dist_1qmvpb9._.js:2477
+[  117678ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0k5d_next_dist_1qmvpb9._.js:2477
+[  117708ms] [LOG] [Fast Refresh] done in 27ms @ http://localhost:3000/_next/static/chunks/0k5d_next_dist_1qmvpb9._.js:2477
+[  120608ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0k5d_next_dist_1qmvpb9._.js:2477
+[  120636ms] [LOG] [Fast Refresh] done in 28ms @ http://localhost:3000/_next/static/chunks/0k5d_next_dist_1qmvpb9._.js:2477
+[  129484ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0k5d_next_dist_1qmvpb9._.js:2477
+[  129564ms] [LOG] [Fast Refresh] done in 109ms @ http://localhost:3000/_next/static/chunks/0k5d_next_dist_1qmvpb9._.js:2477
+[  157469ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0k5d_next_dist_1qmvpb9._.js:2477
+[  157481ms] [LOG] [Fast Refresh] done in 114ms @ http://localhost:3000/_next/static/chunks/0k5d_next_dist_1qmvpb9._.js:2477
+[  168722ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0k5d_next_dist_1qmvpb9._.js:2477
+[  168763ms] [LOG] [Fast Refresh] done in 141ms @ http://localhost:3000/_next/static/chunks/0k5d_next_dist_1qmvpb9._.js:2477
+[  175024ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0k5d_next_dist_1qmvpb9._.js:2477
+[  175108ms] [LOG] [Fast Refresh] done in 134ms @ http://localhost:3000/_next/static/chunks/0k5d_next_dist_1qmvpb9._.js:2477
+[  201210ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0k5d_next_dist_1qmvpb9._.js:2477
+[  201603ms] [LOG] [Fast Refresh] done in 495ms @ http://localhost:3000/_next/static/chunks/0k5d_next_dist_1qmvpb9._.js:2477
+[  538316ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0k5d_next_dist_1qmvpb9._.js:2477
+[  538344ms] [LOG] [Fast Refresh] done in 60ms @ http://localhost:3000/_next/static/chunks/0k5d_next_dist_1qmvpb9._.js:2477
+[  623222ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0k5d_next_dist_1qmvpb9._.js:2477
+[  623518ms] [LOG] [Fast Refresh] done in 391ms @ http://localhost:3000/_next/static/chunks/0k5d_next_dist_1qmvpb9._.js:2477
+[  623740ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0k5d_next_dist_1qmvpb9._.js:2477
+[  623754ms] [LOG] [Fast Refresh] done in 114ms @ http://localhost:3000/_next/static/chunks/0k5d_next_dist_1qmvpb9._.js:2477
+[  623847ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://localhost:3000/_next/static/chunks/0k5d_next_dist_1qmvpb9._.js:2477
+[  623859ms] [LOG] [HMR] connected @ http://localhost:3000/_next/static/chunks/0k5d_next_dist_1qmvpb9._.js:2477
+[  623974ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0k5d_next_dist_1qmvpb9._.js:2477
+[  623990ms] [LOG] [Fast Refresh] done in 118ms @ http://localhost:3000/_next/static/chunks/0k5d_next_dist_1qmvpb9._.js:2477
+[  628903ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0k5d_next_dist_1qmvpb9._.js:2477
+[  628923ms] ReferenceError: getHref is not defined
+    at eval (http://localhost:3000/_next/static/chunks/src_1hg--zn._.js?id=%255Bproject%255D%252Fsrc%252Fcomponents%252Fsidebar.tsx+%255Bapp-client%255D+%2528ecmascript%2529:157:39)
+    at Array.map (<anonymous>)
+    at Sidebar (http://localhost:3000/_next/static/chunks/src_1hg--zn._.js?id=%255Bproject%255D%252Fsrc%252Fcomponents%252Fsidebar.tsx+%255Bapp-client%255D+%2528ecmascript%2529:153:45)
+    at Object.react_stack_bottom_frame (http://localhost:3000/_next/static/chunks/0k5d_next_dist_compiled_react-dom_1ep3e0o._.js:15037:24)
+    at renderWithHooks (http://localhost:3000/_next/static/chunks/0k5d_next_dist_compiled_react-dom_1ep3e0o._.js:4620:24)
+    at updateFunctionComponent (http://localhost:3000/_next/static/chunks/0k5d_next_dist_compiled_react-dom_1ep3e0o._.js:6081:21)
+    at beginWork (http://localhost:3000/_next/static/chunks/0k5d_next_dist_compiled_react-dom_1ep3e0o._.js:6691:24)
+    at runWithFiberInDEV (http://localhost:3000/_next/static/chunks/0k5d_next_dist_compiled_react-dom_1ep3e0o._.js:965:74)
+    at performUnitOfWork (http://localhost:3000/_next/static/chunks/0k5d_next_dist_compiled_react-dom_1ep3e0o._.js:9555:97)
+    at workLoopSync (http://localhost:3000/_next/static/chunks/0k5d_next_dist_compiled_react-dom_1ep3e0o._.js:9449:40)
+    at renderRootSync (http://localhost:3000/_next/static/chunks/0k5d_next_dist_compiled_react-dom_1ep3e0o._.js:9433:13)
+    at performWorkOnRoot (http://localhost:3000/_next/static/chunks/0k5d_next_dist_compiled_react-dom_1ep3e0o._.js:9098:47)
+    at performSyncWorkOnRoot (http://localhost:3000/_next/static/chunks/0k5d_next_dist_compiled_react-dom_1ep3e0o._.js:10263:9)
+    at flushSyncWorkAcrossRoots_impl (http://localhost:3000/_next/static/chunks/0k5d_next_dist_compiled_react-dom_1ep3e0o._.js:10179:316)
+    at flushSyncWork$1 (http://localhost:3000/_next/static/chunks/0k5d_next_dist_compiled_react-dom_1ep3e0o._.js:9230:86)
+    at Object.scheduleRefresh (http://localhost:3000/_next/static/chunks/0k5d_next_dist_compiled_react-dom_1ep3e0o._.js:299:13)
+    at http://localhost:3000/_next/static/chunks/0k5d_next_dist_compiled_1-s7kk0._.js:391:33
+    at Set.forEach (<anonymous>)
+    at Object.performReactRefresh (http://localhost:3000/_next/static/chunks/0k5d_next_dist_compiled_1-s7kk0._.js:384:38)
+    at applyUpdate (http://localhost:3000/_next/static/chunks/0k5d_next_dist_compiled_1-s7kk0._.js:878:31)
+    at http://localhost:3000/_next/static/chunks/0k5d_next_dist_compiled_1-s7kk0._.js:886:13
+[  628994ms] [LOG] [Fast Refresh] done in 46ms @ http://localhost:3000/_next/static/chunks/0k5d_next_dist_1qmvpb9._.js:2477
+[  632296ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0k5d_next_dist_1qmvpb9._.js:2477
+[  632297ms] [WARNING] [Fast Refresh] performing full reload because your application had an unrecoverable error @ http://localhost:3000/_next/static/chunks/0k5d_next_dist_1qmvpb9._.js:2477
+[  632343ms] [LOG] [Fast Refresh] done in 29ms @ http://localhost:3000/_next/static/chunks/0k5d_next_dist_1qmvpb9._.js:2477
+[  632438ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://localhost:3000/_next/static/chunks/0k5d_next_dist_1qmvpb9._.js:2477
+[  632449ms] [LOG] [HMR] connected @ http://localhost:3000/_next/static/chunks/0k5d_next_dist_1qmvpb9._.js:2477
+[  652700ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0k5d_next_dist_1qmvpb9._.js:2477
+[  652726ms] [LOG] [Fast Refresh] done in 33ms @ http://localhost:3000/_next/static/chunks/0k5d_next_dist_1qmvpb9._.js:2477
+[  673099ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0k5d_next_dist_1qmvpb9._.js:2477
+[  673128ms] [LOG] [Fast Refresh] done in 24ms @ http://localhost:3000/_next/static/chunks/0k5d_next_dist_1qmvpb9._.js:2477
+[  693565ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0k5d_next_dist_1qmvpb9._.js:2477
+[  693593ms] [LOG] [Fast Refresh] done in 31ms @ http://localhost:3000/_next/static/chunks/0k5d_next_dist_1qmvpb9._.js:2477
+[  711415ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0k5d_next_dist_1qmvpb9._.js:2477
+[  711442ms] [LOG] [Fast Refresh] done in 43ms @ http://localhost:3000/_next/static/chunks/0k5d_next_dist_1qmvpb9._.js:2477
+[  723284ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0k5d_next_dist_1qmvpb9._.js:2477
+[  723357ms] [LOG] [Fast Refresh] done in 81ms @ http://localhost:3000/_next/static/chunks/0k5d_next_dist_1qmvpb9._.js:2477
+[  736562ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0k5d_next_dist_1qmvpb9._.js:2477
+[  736579ms] [LOG] [Fast Refresh] done in 118ms @ http://localhost:3000/_next/static/chunks/0k5d_next_dist_1qmvpb9._.js:2477
+[  856806ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0k5d_next_dist_1qmvpb9._.js:2477
+[  856850ms] [LOG] [Fast Refresh] done in 122ms @ http://localhost:3000/_next/static/chunks/0k5d_next_dist_1qmvpb9._.js:2477
+[  857048ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0k5d_next_dist_1qmvpb9._.js:2477
+[  857119ms] [LOG] [Fast Refresh] done in 172ms @ http://localhost:3000/_next/static/chunks/0k5d_next_dist_1qmvpb9._.js:2477
+[  857327ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://localhost:3000/_next/static/chunks/0k5d_next_dist_1qmvpb9._.js:2477
+[  857337ms] [LOG] [HMR] connected @ http://localhost:3000/_next/static/chunks/0k5d_next_dist_1qmvpb9._.js:2477
+[ 1018123ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0k5d_next_dist_1qmvpb9._.js:2477
+[ 1018269ms] [LOG] [Fast Refresh] done in 217ms @ http://localhost:3000/_next/static/chunks/0k5d_next_dist_1qmvpb9._.js:2477
+[ 1048692ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0k5d_next_dist_1qmvpb9._.js:2477
+[ 1048853ms] [LOG] [Fast Refresh] done in 65ms @ http://localhost:3000/_next/static/chunks/0k5d_next_dist_1qmvpb9._.js:2477
+[ 1049029ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0k5d_next_dist_1qmvpb9._.js:2477
+[ 1049812ms] [LOG] [Fast Refresh] done in 885ms @ http://localhost:3000/_next/static/chunks/0k5d_next_dist_1qmvpb9._.js:2477
+[ 1049922ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0k5d_next_dist_1qmvpb9._.js:2477
+[ 1050242ms] [LOG] [Fast Refresh] done in 421ms @ http://localhost:3000/_next/static/chunks/0k5d_next_dist_1qmvpb9._.js:2477
+[ 1074722ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0k5d_next_dist_1qmvpb9._.js:2477
+[ 1074741ms] [LOG] [Fast Refresh] done in 120ms @ http://localhost:3000/_next/static/chunks/0k5d_next_dist_1qmvpb9._.js:2477
+[ 1085923ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0k5d_next_dist_1qmvpb9._.js:2477
+[ 1085950ms] [LOG] [Fast Refresh] done in 28ms @ http://localhost:3000/_next/static/chunks/0k5d_next_dist_1qmvpb9._.js:2477
+[ 1150557ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0k5d_next_dist_1qmvpb9._.js:2477
+[ 1150584ms] [LOG] [Fast Refresh] done in 40ms @ http://localhost:3000/_next/static/chunks/0k5d_next_dist_1qmvpb9._.js:2477
+[ 1166838ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0k5d_next_dist_1qmvpb9._.js:2477
+[ 1166863ms] [LOG] [Fast Refresh] done in 41ms @ http://localhost:3000/_next/static/chunks/0k5d_next_dist_1qmvpb9._.js:2477
+[ 1198361ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0k5d_next_dist_1qmvpb9._.js:2477
+[ 1198384ms] [LOG] [Fast Refresh] done in 35ms @ http://localhost:3000/_next/static/chunks/0k5d_next_dist_1qmvpb9._.js:2477
+[ 1247148ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0k5d_next_dist_1qmvpb9._.js:2477
+[ 1247253ms] [LOG] [Fast Refresh] done in 100ms @ http://localhost:3000/_next/static/chunks/0k5d_next_dist_1qmvpb9._.js:2477
+[ 1325849ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0k5d_next_dist_1qmvpb9._.js:2477
+[ 1325923ms] [LOG] [Fast Refresh] done in 74ms @ http://localhost:3000/_next/static/chunks/0k5d_next_dist_1qmvpb9._.js:2477
+[ 1356763ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0k5d_next_dist_1qmvpb9._.js:2477
+[ 1356815ms] [LOG] [Fast Refresh] done in 35ms @ http://localhost:3000/_next/static/chunks/0k5d_next_dist_1qmvpb9._.js:2477
+[ 1378367ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0k5d_next_dist_1qmvpb9._.js:2477
+[ 1378457ms] [LOG] [Fast Refresh] done in 192ms @ http://localhost:3000/_next/static/chunks/0k5d_next_dist_1qmvpb9._.js:2477
+[ 1456418ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0k5d_next_dist_1qmvpb9._.js:2477
+[ 1456431ms] [LOG] [Fast Refresh] done in 115ms @ http://localhost:3000/_next/static/chunks/0k5d_next_dist_1qmvpb9._.js:2477
+[ 1459714ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0k5d_next_dist_1qmvpb9._.js:2477
+[ 1459741ms] [LOG] [Fast Refresh] done in 40ms @ http://localhost:3000/_next/static/chunks/0k5d_next_dist_1qmvpb9._.js:2477
+[ 1500267ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0k5d_next_dist_1qmvpb9._.js:2477
+[ 1500319ms] [LOG] [Fast Refresh] done in 31ms @ http://localhost:3000/_next/static/chunks/0k5d_next_dist_1qmvpb9._.js:2477
+[ 1550600ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0k5d_next_dist_1qmvpb9._.js:2477
+[ 1550640ms] [LOG] [Fast Refresh] done in 38ms @ http://localhost:3000/_next/static/chunks/0k5d_next_dist_1qmvpb9._.js:2477
+[ 1556917ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0k5d_next_dist_1qmvpb9._.js:2477
+[ 1556962ms] [LOG] [Fast Refresh] done in 42ms @ http://localhost:3000/_next/static/chunks/0k5d_next_dist_1qmvpb9._.js:2477
+[ 1563483ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0k5d_next_dist_1qmvpb9._.js:2477
+[ 1563536ms] [LOG] [Fast Refresh] done in 30ms @ http://localhost:3000/_next/static/chunks/0k5d_next_dist_1qmvpb9._.js:2477
+[ 1581091ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0k5d_next_dist_1qmvpb9._.js:2477
+[ 1581154ms] [LOG] [Fast Refresh] done in 61ms @ http://localhost:3000/_next/static/chunks/0k5d_next_dist_1qmvpb9._.js:2477
+[ 1632408ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0k5d_next_dist_1qmvpb9._.js:2477
+[ 1632433ms] [LOG] [Fast Refresh] done in 36ms @ http://localhost:3000/_next/static/chunks/0k5d_next_dist_1qmvpb9._.js:2477
+[ 1657398ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0k5d_next_dist_1qmvpb9._.js:2477
+[ 1657426ms] [LOG] [Fast Refresh] done in 29ms @ http://localhost:3000/_next/static/chunks/0k5d_next_dist_1qmvpb9._.js:2477
+[ 1664964ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0k5d_next_dist_1qmvpb9._.js:2477
+[ 1664993ms] [LOG] [Fast Refresh] done in 30ms @ http://localhost:3000/_next/static/chunks/0k5d_next_dist_1qmvpb9._.js:2477
+[ 1670022ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0k5d_next_dist_1qmvpb9._.js:2477
+[ 1670058ms] [LOG] [Fast Refresh] done in 70ms @ http://localhost:3000/_next/static/chunks/0k5d_next_dist_1qmvpb9._.js:2477
+[ 1673884ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0k5d_next_dist_1qmvpb9._.js:2477
+[ 1673913ms] [LOG] [Fast Refresh] done in 27ms @ http://localhost:3000/_next/static/chunks/0k5d_next_dist_1qmvpb9._.js:2477
+[ 1678893ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0k5d_next_dist_1qmvpb9._.js:2477
+[ 1678937ms] [LOG] [Fast Refresh] done in 26ms @ http://localhost:3000/_next/static/chunks/0k5d_next_dist_1qmvpb9._.js:2477
+[ 1688200ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0k5d_next_dist_1qmvpb9._.js:2477
+[ 1688226ms] [LOG] [Fast Refresh] done in 26ms @ http://localhost:3000/_next/static/chunks/0k5d_next_dist_1qmvpb9._.js:2477
+[ 1728600ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0k5d_next_dist_1qmvpb9._.js:2477
+[ 1728620ms] [LOG] [Fast Refresh] done in 56ms @ http://localhost:3000/_next/static/chunks/0k5d_next_dist_1qmvpb9._.js:2477
+[ 1738499ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0k5d_next_dist_1qmvpb9._.js:2477
+[ 1738552ms] [LOG] [Fast Refresh] done in 35ms @ http://localhost:3000/_next/static/chunks/0k5d_next_dist_1qmvpb9._.js:2477
+[ 1743298ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0k5d_next_dist_1qmvpb9._.js:2477
+[ 1743330ms] [LOG] [Fast Refresh] done in 134ms @ http://localhost:3000/_next/static/chunks/0k5d_next_dist_1qmvpb9._.js:2477
+[ 1816540ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0k5d_next_dist_1qmvpb9._.js:2477
+[ 1816583ms] [LOG] [Fast Refresh] done in 36ms @ http://localhost:3000/_next/static/chunks/0k5d_next_dist_1qmvpb9._.js:2477
+[ 1823531ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0k5d_next_dist_1qmvpb9._.js:2477
+[ 1823577ms] [LOG] [Fast Refresh] done in 41ms @ http://localhost:3000/_next/static/chunks/0k5d_next_dist_1qmvpb9._.js:2477
+[ 1838005ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0k5d_next_dist_1qmvpb9._.js:2477
+[ 1838091ms] [ERROR] ./src/app/calendar/page.tsx:196:25
+the name `endDateStr` is defined multiple times
+  194 |
+  195 |   // Fetch data for week view (wider range)
+> 196 |   const { startDateStr, endDateStr } = useMemo(() => {
+      |                         ^^^^^^^^^^
+  197 |     if (viewMode === "week") {
+  198 |       return { startDateStr: weekStartStr, endDateStr: weekEndStr };
+  199 |     }
+
+Ecmascript file had an error
+
+Import traces:
+  Client Component Browser:
+    ./src/app/calendar/page.tsx [Client Component Browser]
+    ./src/app/calendar/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/app/calendar/page.tsx [Client Component SSR]
+    ./src/app/calendar/page.tsx [Server Component] @ http://localhost:3000/_next/static/chunks/0k5d_next_dist_1qmvpb9._.js:3318
+[ 1838091ms] [ERROR] ./src/app/calendar/page.tsx:196:11
+the name `startDateStr` is defined multiple times
+  194 |
+  195 |   // Fetch data for week view (wider range)
+> 196 |   const { startDateStr, endDateStr } = useMemo(() => {
+      |           ^^^^^^^^^^^^
+  197 |     if (viewMode === "week") {
+  198 |       return { startDateStr: weekStartStr, endDateStr: weekEndStr };
+  199 |     }
+
+Ecmascript file had an error
+
+Import traces:
+  Client Component Browser:
+    ./src/app/calendar/page.tsx [Client Component Browser]
+    ./src/app/calendar/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/app/calendar/page.tsx [Client Component SSR]
+    ./src/app/calendar/page.tsx [Server Component] @ http://localhost:3000/_next/static/chunks/0k5d_next_dist_1qmvpb9._.js:3318
+[ 1838205ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0k5d_next_dist_1qmvpb9._.js:2477
+[ 1838410ms] [ERROR] ./src/app/calendar/page.tsx:196:25
+the name `endDateStr` is defined multiple times
+  194 |
+  195 |   // Fetch data for week view (wider range)
+> 196 |   const { startDateStr, endDateStr } = useMemo(() => {
+      |                         ^^^^^^^^^^
+  197 |     if (viewMode === "week") {
+  198 |       return { startDateStr: weekStartStr, endDateStr: weekEndStr };
+  199 |     }
+
+Ecmascript file had an error
+
+Import traces:
+  Client Component Browser:
+    ./src/app/calendar/page.tsx [Client Component Browser]
+    ./src/app/calendar/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/app/calendar/page.tsx [Client Component SSR]
+    ./src/app/calendar/page.tsx [Server Component] @ http://localhost:3000/_next/static/chunks/0k5d_next_dist_1qmvpb9._.js:3318
+[ 1838410ms] [ERROR] ./src/app/calendar/page.tsx:196:11
+the name `startDateStr` is defined multiple times
+  194 |
+  195 |   // Fetch data for week view (wider range)
+> 196 |   const { startDateStr, endDateStr } = useMemo(() => {
+      |           ^^^^^^^^^^^^
+  197 |     if (viewMode === "week") {
+  198 |       return { startDateStr: weekStartStr, endDateStr: weekEndStr };
+  199 |     }
+
+Ecmascript file had an error
+
+Import traces:
+  Client Component Browser:
+    ./src/app/calendar/page.tsx [Client Component Browser]
+    ./src/app/calendar/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/app/calendar/page.tsx [Client Component SSR]
+    ./src/app/calendar/page.tsx [Server Component] @ http://localhost:3000/_next/static/chunks/0k5d_next_dist_1qmvpb9._.js:3318
+[ 1838512ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0k5d_next_dist_1qmvpb9._.js:2477
+[ 1838648ms] [ERROR] ./src/app/calendar/page.tsx:196:25
+the name `endDateStr` is defined multiple times
+  194 |
+  195 |   // Fetch data for week view (wider range)
+> 196 |   const { startDateStr, endDateStr } = useMemo(() => {
+      |                         ^^^^^^^^^^
+  197 |     if (viewMode === "week") {
+  198 |       return { startDateStr: weekStartStr, endDateStr: weekEndStr };
+  199 |     }
+
+Ecmascript file had an error
+
+Import traces:
+  Client Component Browser:
+    ./src/app/calendar/page.tsx [Client Component Browser]
+    ./src/app/calendar/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/app/calendar/page.tsx [Client Component SSR]
+    ./src/app/calendar/page.tsx [Server Component] @ http://localhost:3000/_next/static/chunks/0k5d_next_dist_1qmvpb9._.js:3318
+[ 1838648ms] [ERROR] ./src/app/calendar/page.tsx:196:11
+the name `startDateStr` is defined multiple times
+  194 |
+  195 |   // Fetch data for week view (wider range)
+> 196 |   const { startDateStr, endDateStr } = useMemo(() => {
+      |           ^^^^^^^^^^^^
+  197 |     if (viewMode === "week") {
+  198 |       return { startDateStr: weekStartStr, endDateStr: weekEndStr };
+  199 |     }
+
+Ecmascript file had an error
+
+Import traces:
+  Client Component Browser:
+    ./src/app/calendar/page.tsx [Client Component Browser]
+    ./src/app/calendar/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/app/calendar/page.tsx [Client Component SSR]
+    ./src/app/calendar/page.tsx [Server Component] @ http://localhost:3000/_next/static/chunks/0k5d_next_dist_1qmvpb9._.js:3318
+[ 1838685ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:3000/daily/2026-06-23?_rsc=LxYA8B2NgaCZyRL8:0
+[ 1838749ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0k5d_next_dist_1qmvpb9._.js:2477
+[ 1838876ms] [ERROR] ./src/app/calendar/page.tsx:196:25
+the name `endDateStr` is defined multiple times
+  194 |
+  195 |   // Fetch data for week view (wider range)
+> 196 |   const { startDateStr, endDateStr } = useMemo(() => {
+      |                         ^^^^^^^^^^
+  197 |     if (viewMode === "week") {
+  198 |       return { startDateStr: weekStartStr, endDateStr: weekEndStr };
+  199 |     }
+
+Ecmascript file had an error
+
+Import traces:
+  Client Component Browser:
+    ./src/app/calendar/page.tsx [Client Component Browser]
+    ./src/app/calendar/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/app/calendar/page.tsx [Client Component SSR]
+    ./src/app/calendar/page.tsx [Server Component] @ http://localhost:3000/_next/static/chunks/0k5d_next_dist_1qmvpb9._.js:3318
+[ 1838876ms] [ERROR] ./src/app/calendar/page.tsx:196:11
+the name `startDateStr` is defined multiple times
+  194 |
+  195 |   // Fetch data for week view (wider range)
+> 196 |   const { startDateStr, endDateStr } = useMemo(() => {
+      |           ^^^^^^^^^^^^
+  197 |     if (viewMode === "week") {
+  198 |       return { startDateStr: weekStartStr, endDateStr: weekEndStr };
+  199 |     }
+
+Ecmascript file had an error
+
+Import traces:
+  Client Component Browser:
+    ./src/app/calendar/page.tsx [Client Component Browser]
+    ./src/app/calendar/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/app/calendar/page.tsx [Client Component SSR]
+    ./src/app/calendar/page.tsx [Server Component] @ http://localhost:3000/_next/static/chunks/0k5d_next_dist_1qmvpb9._.js:3318
+[ 1838929ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:3000/daily/2026-06-23:0

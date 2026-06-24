@@ -1,0 +1,59 @@
+[      88ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://localhost:3000/_next/static/chunks/0k5d_next_dist_1qmvpb9._.js:2477
+[      98ms] [LOG] [HMR] connected @ http://localhost:3000/_next/static/chunks/0k5d_next_dist_1qmvpb9._.js:2477
+[   65608ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0k5d_next_dist_1qmvpb9._.js:2477
+[   65637ms] [LOG] [Fast Refresh] done in 23ms @ http://localhost:3000/_next/static/chunks/0k5d_next_dist_1qmvpb9._.js:2477
+[   72254ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0k5d_next_dist_1qmvpb9._.js:2477
+[   72283ms] [LOG] [Fast Refresh] done in 27ms @ http://localhost:3000/_next/static/chunks/0k5d_next_dist_1qmvpb9._.js:2477
+[   81712ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0k5d_next_dist_1qmvpb9._.js:2477
+[   81896ms] [LOG] [Fast Refresh] done in 244ms @ http://localhost:3000/_next/static/chunks/0k5d_next_dist_1qmvpb9._.js:2477
+[  121842ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0k5d_next_dist_1qmvpb9._.js:2477
+[  121842ms] [LOG] [Fast Refresh] done in 103ms @ http://localhost:3000/_next/static/chunks/0k5d_next_dist_1qmvpb9._.js:2477
+[  215621ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0k5d_next_dist_1qmvpb9._.js:2477
+[  215649ms] [LOG] [Fast Refresh] done in 23ms @ http://localhost:3000/_next/static/chunks/0k5d_next_dist_1qmvpb9._.js:2477
+[  230566ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0k5d_next_dist_1qmvpb9._.js:2477
+[  230594ms] [LOG] [Fast Refresh] done in 33ms @ http://localhost:3000/_next/static/chunks/0k5d_next_dist_1qmvpb9._.js:2477
+[25915164ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0k5d_next_dist_1qmvpb9._.js:2477
+[25915165ms] [LOG] [Fast Refresh] done in 104ms @ http://localhost:3000/_next/static/chunks/0k5d_next_dist_1qmvpb9._.js:2477
+[28062779ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0k5d_next_dist_1qmvpb9._.js:2477
+[28062867ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:3000/hot-topics?_rsc=AOLC6mb6R4m6Dv7Z:0
+[28062913ms] [ERROR] ./src/app/calendar/page.tsx:919:10
+Unterminated regexp literal
+  917 |             </CardContent>
+  918 |           </Card>
+> 919 |         </div>
+      |          ^^^^^
+  920 |       </div>
+  921 |
+  922 |       {/* Preview pending content */}
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./src/app/calendar/page.tsx [Client Component Browser]
+    ./src/app/calendar/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/app/calendar/page.tsx [Client Component SSR]
+    ./src/app/calendar/page.tsx [Server Component] @ http://localhost:3000/_next/static/chunks/0k5d_next_dist_1qmvpb9._.js:3318
+[28062959ms] [ERROR] ./src/app/calendar/page.tsx:919:10
+Unterminated regexp literal
+  917 |             </CardContent>
+  918 |           </Card>
+> 919 |         </div>
+      |          ^^^^^
+  920 |       </div>
+  921 |
+  922 |       {/* Preview pending content */}
+
+Parsing ecmascript source code failed
+
+Import traces:
+  Client Component Browser:
+    ./src/app/calendar/page.tsx [Client Component Browser]
+    ./src/app/calendar/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/app/calendar/page.tsx [Client Component SSR]
+    ./src/app/calendar/page.tsx [Server Component] @ http://localhost:3000/_next/static/chunks/0k5d_next_dist_1qmvpb9._.js:3318
+[28063034ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:3000/hot-topics:0

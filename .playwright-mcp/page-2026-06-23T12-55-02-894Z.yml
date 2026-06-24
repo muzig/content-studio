@@ -1,0 +1,35 @@
+- generic [active] [ref=e1]:
+  - complementary [ref=e2]:
+    - heading "Content Studio" [level=1] [ref=e4]
+    - navigation [ref=e5]:
+      - link "🔥 热点收集" [ref=e6] [cursor=pointer]:
+        - /url: /hot-topics
+        - generic [ref=e7]: 🔥
+        - generic [ref=e8]: 热点收集
+      - link "✍️ 内容创作" [ref=e9] [cursor=pointer]:
+        - /url: /create
+        - generic [ref=e10]: ✍️
+        - generic [ref=e11]: 内容创作
+      - link "📅 发布日历" [ref=e12] [cursor=pointer]:
+        - /url: /calendar
+        - generic [ref=e13]: 📅
+        - generic [ref=e14]: 发布日历
+      - link "📊 数据分析" [ref=e15] [cursor=pointer]:
+        - /url: /analytics
+        - generic [ref=e16]: 📊
+        - generic [ref=e17]: 数据分析
+      - link "📝 每日编辑" [ref=e18] [cursor=pointer]:
+        - /url: /daily/2026-06-23
+        - generic [ref=e19]: 📝
+        - generic [ref=e20]: 每日编辑
+      - link "📋 发布管理" [ref=e21] [cursor=pointer]:
+        - /url: /publish
+        - generic [ref=e22]: 📋
+        - generic [ref=e23]: 发布管理
+      - link "⚙️ 设置" [ref=e24] [cursor=pointer]:
+        - /url: /settings
+        - generic [ref=e25]: ⚙️
+        - generic [ref=e26]: 设置
+  - main [ref=e27]:
+    - paragraph [ref=e29]: 加载中...
+  - alert [ref=e30]
