@@ -79,23 +79,23 @@ async function main() {
     console.log(`  ✓ ${rule.label} (${rule.platform})`);
   }
 
-  // Migrate existing tweets data to x
+  // Clean up legacy tweets platform
   try {
+    // Remove old tweets rule if it exists (we now use 'x')
+    const deletedRule = await prisma.platformRule.deleteMany({
+      where: { platform: "tweets" },
+    });
+    if (deletedRule.count > 0) {
+      console.log(`  ✓ Removed ${deletedRule.count} legacy tweets rule`);
+    }
+
+    // Migrate any tweets platform content to x
     const migrated = await prisma.platformContent.updateMany({
       where: { platform: "tweets" },
       data: { platform: "x" },
     });
     if (migrated.count > 0) {
       console.log(`  ✓ Migrated ${migrated.count} tweets records to x`);
-    }
-
-    // Also migrate any old platform_rules
-    const ruleMigrated = await prisma.platformRule.updateMany({
-      where: { platform: "tweets" },
-      data: { platform: "x", label: "X" },
-    });
-    if (ruleMigrated.count > 0) {
-      console.log(`  ✓ Migrated ${ruleMigrated.count} tweets rule to x`);
     }
   } catch {
     // Tables might not have data yet
