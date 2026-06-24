@@ -15,6 +15,8 @@ import {
   Loader2,
   CheckCircle2,
   AlertCircle,
+  Copy,
+  Check,
 } from "lucide-react";
 
 interface HotTopic {
@@ -57,15 +59,17 @@ export default function CreatePage() {
   const [generating, setGenerating] = useState(false);
   const [saving, setSaving] = useState(false);
   const [comment, setComment] = useState("");
-  const [activeTab, setActiveTab] = useState("tweets");
+  const [activeTab, setActiveTab] = useState("x");
   const [generationStatus, setGenerationStatus] = useState<GenerationStatus[]>(
     []
   );
   const [error, setError] = useState<string | null>(null);
+  const [copiedPlatform, setCopiedPlatform] = useState<string | null>(null);
 
-  const PLATFORMS = ["tweets", "xiaohongshu", "zhihu"];
+  const PLATFORMS = ["x", "weibo", "xiaohongshu", "zhihu"];
   const PLATFORM_LABELS: Record<string, string> = {
-    tweets: "推文",
+    x: "X",
+    weibo: "微博",
     xiaohongshu: "小红书",
     zhihu: "知乎",
   };
@@ -250,6 +254,16 @@ export default function CreatePage() {
         setGenerating(false);
         setGenerationStatus([]);
       }, 2000);
+    }
+  }
+
+  async function handleCopy(content: string, platform: string) {
+    try {
+      await navigator.clipboard.writeText(content);
+      setCopiedPlatform(platform);
+      setTimeout(() => setCopiedPlatform(null), 2000);
+    } catch (err) {
+      console.error("Failed to copy:", err);
     }
   }
 
@@ -448,24 +462,44 @@ export default function CreatePage() {
                             ? "就绪"
                             : "已发布"}
                       </Badge>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleRegeneratePlatform(p.platform)}
-                        disabled={generating}
-                      >
-                        {generating ? (
-                          <>
-                            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                            生成中...
-                          </>
-                        ) : (
-                          <>
-                            <RefreshCw className="h-4 w-4 mr-2" />
-                            重新生成
-                          </>
-                        )}
-                      </Button>
+                      <div className="flex gap-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleCopy(p.formatted, p.platform)}
+                          disabled={!p.formatted}
+                        >
+                          {copiedPlatform === p.platform ? (
+                            <>
+                              <Check className="h-4 w-4 mr-2 text-green-500" />
+                              已复制
+                            </>
+                          ) : (
+                            <>
+                              <Copy className="h-4 w-4 mr-2" />
+                              复制
+                            </>
+                          )}
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleRegeneratePlatform(p.platform)}
+                          disabled={generating}
+                        >
+                          {generating ? (
+                            <>
+                              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                              生成中...
+                            </>
+                          ) : (
+                            <>
+                              <RefreshCw className="h-4 w-4 mr-2" />
+                              重新生成
+                            </>
+                          )}
+                        </Button>
+                      </div>
                     </div>
                     <div className="bg-muted p-4 rounded-md whitespace-pre-wrap text-sm">
                       {p.formatted || "暂无内容，请先生成"}
