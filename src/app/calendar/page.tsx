@@ -110,7 +110,7 @@ export default function CalendarPage() {
   const [previewScheduled, setPreviewScheduled] = useState<ScheduledPost | null>(
     null
   );
-  const [rightTab, setRightTab] = useState("pending");
+  const [rightTab, setRightTab] = useState("calendar");
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [editItem, setEditItem] = useState<PublishItem | null>(null);
   const [editText, setEditText] = useState("");
@@ -482,7 +482,9 @@ export default function CalendarPage() {
       ? pendingItems
       : rightTab === "ready"
         ? readyItems
-        : publishedItems;
+        : rightTab === "published"
+          ? publishedItems
+          : [];
 
   if (loading) {
     return (
@@ -561,9 +563,30 @@ export default function CalendarPage() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-        <div className="lg:col-span-3">
-          {viewMode === "month" ? (
+      {/* Content management tabs — top bar */}
+      <div className="mb-4">
+        <Tabs value={rightTab} onValueChange={setRightTab}>
+          <TabsList>
+            <TabsTrigger value="calendar" className="text-xs">
+              <CalendarIcon className="h-3.5 w-3.5 mr-1" />
+              日历
+            </TabsTrigger>
+            <TabsTrigger value="pending" className="text-xs">
+              待排期 ({pendingItems.length})
+            </TabsTrigger>
+            <TabsTrigger value="ready" className="text-xs">
+              就绪 ({readyItems.length})
+            </TabsTrigger>
+            <TabsTrigger value="published" className="text-xs">
+              已发布 ({publishedItems.length})
+            </TabsTrigger>
+          </TabsList>
+        </Tabs>
+      </div>
+
+      {rightTab === "calendar" ? (
+      <div>
+        {viewMode === "month" ? (
           <Card>
             <CardContent className="p-4">
               <div className="grid grid-cols-7 gap-1 mb-2">
@@ -762,141 +785,121 @@ export default function CalendarPage() {
             })}
           </div>
           )}
-        </div>
-
-        <div>
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-base">内容管理</CardTitle>
-              <Tabs value={rightTab} onValueChange={setRightTab}>
-                <TabsList className="w-full">
-                  <TabsTrigger value="pending" className="flex-1 text-xs">
-                    待排期 ({pendingItems.length})
-                  </TabsTrigger>
-                  <TabsTrigger value="ready" className="flex-1 text-xs">
-                    就绪 ({readyItems.length})
-                  </TabsTrigger>
-                  <TabsTrigger value="published" className="flex-1 text-xs">
-                    已发布 ({publishedItems.length})
-                  </TabsTrigger>
-                </TabsList>
-              </Tabs>
-            </CardHeader>
-            <CardContent>
-              {rightItems.length === 0 ? (
-                <p className="text-sm text-muted-foreground text-center py-4">
-                  {rightTab === "pending"
-                    ? "暂无待排期内容"
-                    : rightTab === "ready"
-                      ? "暂无就绪内容"
-                      : "暂无已发布内容"}
-                </p>
-              ) : (
-                <div className="space-y-2 max-h-[50vh] overflow-y-auto">
-                  {rightItems.map((item) => (
-                    <div
-                      key={item.id}
-                      className={`p-2 rounded-md hover:shadow-md transition-shadow ${getPlatformColor(
-                        item.platform
-                      )}`}
-                      draggable={rightTab === "pending"}
-                      onDragStart={() => rightTab === "pending" && setDraggedItem(item)}
-                      onDragEnd={() => setDraggedItem(null)}
-                    >
-                      <div className="flex items-start gap-2">
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2">
-                            <span className="text-xs font-medium">
-                              {getPlatformLabel(item.platform)}
-                            </span>
-                            {item.scheduled_post && (
-                              <span
-                                className="text-xs text-muted-foreground cursor-pointer hover:underline"
-                                onClick={(e) => { e.stopPropagation(); openScheduleDialog(item); }}
-                              >
-                                📅 {item.scheduled_post.scheduled_date}
-                              </span>
-                            )}
-                          </div>
-                          <div className="text-xs truncate mt-0.5">
-                            {item.content_entry.title ||
-                              item.content_entry.hot_topic?.title ||
-                              "无标题"}
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-0.5 shrink-0">
-                          <button
-                            type="button"
-                            className="h-7 w-7 flex items-center justify-center rounded hover:bg-black/10 transition-colors"
-                            onClick={(e) => { e.stopPropagation(); openScheduleDialog(item); }}
-                            onMouseDown={(e) => e.stopPropagation()}
-                            title="设置排期"
-                          >
-                            <CalendarIcon className="h-3.5 w-3.5" />
-                          </button>
-                          <button
-                            type="button"
-                            className="h-7 w-7 flex items-center justify-center rounded hover:bg-black/10 transition-colors"
-                            onClick={(e) => { e.stopPropagation(); setPreviewContent(item); }}
-                            onMouseDown={(e) => e.stopPropagation()}
-                            title="预览"
-                          >
-                            <Eye className="h-3.5 w-3.5" />
-                          </button>
-                          <button
-                            type="button"
-                            className="h-7 w-7 flex items-center justify-center rounded hover:bg-black/10 transition-colors"
-                            onClick={(e) => { e.stopPropagation(); handleCopy(item.formatted, item.id); }}
-                            onMouseDown={(e) => e.stopPropagation()}
-                            title="复制"
-                          >
-                            {copiedId === item.id ? (
-                              <Check className="h-3.5 w-3.5 text-green-600" />
-                            ) : (
-                              <Copy className="h-3.5 w-3.5" />
-                            )}
-                          </button>
-                          <button
-                            type="button"
-                            className="h-7 w-7 flex items-center justify-center rounded hover:bg-black/10 transition-colors"
-                            onClick={(e) => { e.stopPropagation(); openEdit(item); }}
-                            onMouseDown={(e) => e.stopPropagation()}
-                            title="编辑"
-                          >
-                            <Pencil className="h-3.5 w-3.5" />
-                          </button>
-                          {item.status === "draft" && (
-                            <button
-                              type="button"
-                              className="h-7 w-7 flex items-center justify-center rounded hover:bg-black/10 transition-colors"
-                              onClick={(e) => { e.stopPropagation(); handleUpdateStatus(item.id, "ready"); }}
-                              onMouseDown={(e) => e.stopPropagation()}
-                              title="标记就绪"
-                            >
-                              <Check className="h-3.5 w-3.5" />
-                            </button>
-                          )}
-                          {item.status === "ready" && (
-                            <button
-                              type="button"
-                              className="h-7 w-7 flex items-center justify-center rounded hover:bg-black/10 text-green-700"
-                              onClick={(e) => { e.stopPropagation(); handleUpdateStatus(item.id, "published"); }}
-                              onMouseDown={(e) => e.stopPropagation()}
-                              title="确认发布"
-                            >
-                              <Check className="h-4 w-4" />
-                            </button>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </div>
       </div>
+      ) : (
+      /* Content management panel */
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
+        {rightItems.length === 0 ? (
+          <p className="text-sm text-muted-foreground text-center py-8 col-span-full">
+            {rightTab === "pending"
+              ? "暂无待排期内容"
+              : rightTab === "ready"
+                ? "暂无就绪内容"
+                : "暂无已发布内容"}
+          </p>
+        ) : (
+          rightItems.map((item) => (
+            <div
+              key={item.id}
+              className={`p-3 rounded-lg hover:shadow-md transition-shadow ${getPlatformColor(
+                item.platform
+              )}`}
+              draggable={rightTab === "pending"}
+              onDragStart={() => rightTab === "pending" && setDraggedItem(item)}
+              onDragEnd={() => setDraggedItem(null)}
+            >
+              <div className="flex items-start gap-2">
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-medium">
+                      {getPlatformLabel(item.platform)}
+                    </span>
+                    {item.scheduled_post && (
+                      <span
+                        className="text-xs text-muted-foreground cursor-pointer hover:underline"
+                        onClick={(e) => { e.stopPropagation(); openScheduleDialog(item); }}
+                      >
+                        📅 {item.scheduled_post.scheduled_date}
+                      </span>
+                    )}
+                  </div>
+                  <div className="text-xs font-medium truncate mt-1">
+                    {item.content_entry.title ||
+                      item.content_entry.hot_topic?.title ||
+                      "无标题"}
+                  </div>
+                  <div className="text-xs text-muted-foreground line-clamp-2 mt-0.5">
+                    {item.formatted?.slice(0, 80) || ""}
+                  </div>
+                </div>
+              </div>
+              <div className="flex items-center gap-1 mt-2 pt-2 border-t border-black/10">
+                <button
+                  type="button"
+                  className="h-7 w-7 flex items-center justify-center rounded hover:bg-black/10 transition-colors"
+                  onClick={(e) => { e.stopPropagation(); openScheduleDialog(item); }}
+                  onMouseDown={(e) => e.stopPropagation()}
+                  title="设置排期"
+                >
+                  <CalendarIcon className="h-3.5 w-3.5" />
+                </button>
+                <button
+                  type="button"
+                  className="h-7 w-7 flex items-center justify-center rounded hover:bg-black/10 transition-colors"
+                  onClick={(e) => { e.stopPropagation(); setPreviewContent(item); }}
+                  onMouseDown={(e) => e.stopPropagation()}
+                  title="预览"
+                >
+                  <Eye className="h-3.5 w-3.5" />
+                </button>
+                <button
+                  type="button"
+                  className="h-7 w-7 flex items-center justify-center rounded hover:bg-black/10 transition-colors"
+                  onClick={(e) => { e.stopPropagation(); handleCopy(item.formatted, item.id); }}
+                  onMouseDown={(e) => e.stopPropagation()}
+                  title="复制"
+                >
+                  {copiedId === item.id ? (
+                    <Check className="h-3.5 w-3.5 text-green-600" />
+                  ) : (
+                    <Copy className="h-3.5 w-3.5" />
+                  )}
+                </button>
+                <button
+                  type="button"
+                  className="h-7 w-7 flex items-center justify-center rounded hover:bg-black/10 transition-colors"
+                  onClick={(e) => { e.stopPropagation(); openEdit(item); }}
+                  onMouseDown={(e) => e.stopPropagation()}
+                  title="编辑"
+                >
+                  <Pencil className="h-3.5 w-3.5" />
+                </button>
+                {item.status === "draft" && (
+                  <button
+                    type="button"
+                    className="ml-auto text-xs px-2 py-1 rounded hover:bg-black/10 transition-colors"
+                    onClick={(e) => { e.stopPropagation(); handleUpdateStatus(item.id, "ready"); }}
+                    onMouseDown={(e) => e.stopPropagation()}
+                  >
+                    标记就绪
+                  </button>
+                )}
+                {item.status === "ready" && (
+                  <button
+                    type="button"
+                    className="ml-auto text-xs px-2 py-1 rounded bg-green-100 text-green-700 hover:bg-green-200 transition-colors"
+                    onClick={(e) => { e.stopPropagation(); handleUpdateStatus(item.id, "published"); }}
+                    onMouseDown={(e) => e.stopPropagation()}
+                  >
+                    确认发布
+                  </button>
+                )}
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+      )}
 
       {/* Preview pending content */}
       <Dialog
