@@ -5,6 +5,13 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 import { Trash2, PenLine, ExternalLink, Check, X } from "lucide-react";
 
 interface HotTopic {
@@ -41,6 +48,7 @@ export function HotTopicCard({
     hotTopic.tags ? JSON.parse(hotTopic.tags).join(", ") : ""
   );
   const [saving, setSaving] = useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
   const tags = hotTopic.tags ? JSON.parse(hotTopic.tags) : [];
   const date = new Date(hotTopic.created_at).toLocaleDateString("zh-CN", {
@@ -134,23 +142,21 @@ export function HotTopicCard({
     >
       <div className="flex items-start justify-between gap-3">
         <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 mb-1">
-            <h3 className="font-medium text-sm truncate">{hotTopic.title}</h3>
-            {tags.length > 0 && (
-              <div className="flex gap-1 shrink-0">
-                {tags.slice(0, 3).map((tag: string, i: number) => (
-                  <Badge key={i} variant="secondary" className="text-xs">
-                    {tag}
-                  </Badge>
-                ))}
-                {tags.length > 3 && (
-                  <Badge variant="outline" className="text-xs">
-                    +{tags.length - 3}
-                  </Badge>
-                )}
-              </div>
-            )}
-          </div>
+          <h3 className="font-medium text-sm mb-1">{hotTopic.title}</h3>
+          {tags.length > 0 && (
+            <div className="flex flex-wrap gap-1 mb-1">
+              {tags.slice(0, 5).map((tag: string, i: number) => (
+                <Badge key={i} variant="secondary" className="text-xs">
+                  {tag}
+                </Badge>
+              ))}
+              {tags.length > 5 && (
+                <Badge variant="outline" className="text-xs">
+                  +{tags.length - 5}
+                </Badge>
+              )}
+            </div>
+          )}
           {hotTopic.content && (
             <p className="text-xs text-muted-foreground line-clamp-1 mb-1">
               {hotTopic.content}
@@ -169,7 +175,7 @@ export function HotTopicCard({
           </div>
         </div>
         <div
-          className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity shrink-0"
+          className="flex items-center gap-1 shrink-0"
           onClick={(e) => e.stopPropagation()}
         >
           {hotTopic.url && (
@@ -193,13 +199,38 @@ export function HotTopicCard({
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => onDelete(hotTopic.id)}
+            onClick={() => setShowDeleteDialog(true)}
             className="h-8 px-2 text-destructive hover:text-destructive"
           >
             <Trash2 className="h-4 w-4" />
           </Button>
         </div>
       </div>
+
+      <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>确认删除</DialogTitle>
+            <DialogDescription>
+              确定要删除热点「{hotTopic.title}」吗？此操作不可撤销。
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex justify-end gap-2 mt-4">
+            <Button variant="ghost" onClick={() => setShowDeleteDialog(false)}>
+              取消
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={() => {
+                onDelete(hotTopic.id);
+                setShowDeleteDialog(false);
+              }}
+            >
+              删除
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

@@ -86,36 +86,32 @@ export function HotTopicParser({ onComplete, onCancel }: HotTopicParserProps) {
     }
   }, [text]); // intentionally excludes parsedText to avoid loop
 
-  async function handleParse() {
+  function handleParse() {
     if (!text.trim()) return;
+    const textAtParse = text;
     setParsing(true);
     setError("");
-    setTopics([]);
-    setParsedText("");
 
-    try {
-      const res = await fetch("/api/hot-topics/parse", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text }),
-      });
-
-      const data = await res.json();
-      if (!res.ok) {
-        setError(data.error || "解析失败");
-        return;
-      }
-
-      setTopics(data.topics || []);
-      setParsedText(text);
-      if (data.topics?.length === 0) {
-        setError("未能从文本中解析出热点，请检查文本格式");
-      }
-    } catch {
-      setError("请求失败，请重试");
-    } finally {
-      setParsing(false);
-    }
+    fetch("/api/hot-topics/parse", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text: textAtParse }),
+    })
+      .then((res) => res.json().then((data) => ({ ok: res.ok, data })))
+      .then(({ ok, data }) => {
+        if (!ok) {
+          setError(data.error || "解析失败");
+          return;
+        }
+        if (data.topics?.length === 0) {
+          setError("未能从文本中解析出热点，请检查文本格式");
+          return;
+        }
+        setTopics(data.topics || []);
+        setParsedText(textAtParse);
+      })
+      .catch(() => setError("请求失败，请重试"))
+      .finally(() => setParsing(false));
   }
 
   function updateTopic(index: number, field: keyof ParsedTopic, value: unknown) {
@@ -239,17 +235,8 @@ export function HotTopicParser({ onComplete, onCancel }: HotTopicParserProps) {
         placeholder="粘贴热点新闻汇总文本..."
         value={text}
         onChange={(e) => setText(e.target.value)}
-        rows={10}
-        className="font-mono text-sm"
-        disabled={parsing}
+        className="font-mono text-sm h-48 resize-none overflow-y-auto"
       />
-
-      {parsing && (
-        <div className="flex items-center gap-2 text-sm text-muted-foreground bg-muted/50 p-3 rounded-md">
-          <Loader2 className="h-4 w-4 animate-spin" />
-          <span>AI 正在后台分析，完成后会显示结果...</span>
-        </div>
-      )}
 
       <div className="flex items-center gap-2 justify-end">
         <Button variant="ghost" onClick={handleCancel}>
@@ -261,9 +248,16 @@ export function HotTopicParser({ onComplete, onCancel }: HotTopicParserProps) {
           ) : (
             <Sparkles className="h-4 w-4 mr-2" />
           )}
-          {parsing ? "分析中..." : "AI 解析"}
+          {parsing ? "后台分析中..." : "AI 解析"}
         </Button>
       </div>
+
+      {parsing && (
+        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+          <Loader2 className="h-3 w-3 animate-spin" />
+          <span>AI 正在后台解析，完成后自动显示结果，期间可继续编辑文本</span>
+        </div>
+      )}
     </div>
   );
 }
