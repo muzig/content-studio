@@ -259,7 +259,18 @@ export default function CreatePage() {
 
   async function handleCopy(content: string, platform: string) {
     try {
-      await navigator.clipboard.writeText(content);
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(content);
+      } else {
+        const textarea = document.createElement("textarea");
+        textarea.value = content;
+        textarea.style.position = "fixed";
+        textarea.style.opacity = "0";
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand("copy");
+        document.body.removeChild(textarea);
+      }
       setCopiedPlatform(platform);
       setTimeout(() => setCopiedPlatform(null), 2000);
     } catch (err) {
