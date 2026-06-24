@@ -138,7 +138,7 @@ export function HotTopicCard({
   return (
     <div
       className="border rounded-lg px-4 py-3 hover:bg-accent/50 transition-colors cursor-pointer group"
-      onClick={() => setEditing(true)}
+      onClick={() => onCreateContent(hotTopic.id)}
     >
       <div className="flex items-start justify-between gap-3">
         <div className="flex-1 min-w-0">
@@ -191,7 +191,7 @@ export function HotTopicCard({
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => onCreateContent(hotTopic.id)}
+            onClick={() => setEditing(true)}
             className="h-8 px-2"
           >
             <PenLine className="h-4 w-4" />
