@@ -96,7 +96,7 @@ export default function CreatePage() {
     fetchData();
   }, [fetchData]);
 
-  async function handleSave() {
+  async function handleSave(): Promise<string | undefined> {
     if (!hotTopic) return;
 
     setSaving(true);
@@ -110,6 +110,7 @@ export default function CreatePage() {
         if (res.ok) {
           const data = await res.json();
           setEntry(data.entry);
+          return data.entry.id;
         }
       } else {
         const res = await fetch("/api/entries", {
@@ -123,6 +124,7 @@ export default function CreatePage() {
         if (res.ok) {
           const data = await res.json();
           setEntry(data.entry);
+          return data.entry.id;
         }
       }
     } catch (error) {
@@ -135,11 +137,10 @@ export default function CreatePage() {
   async function handleGenerate() {
     setError(null);
 
-    if (!entry) {
-      await handleSave();
+    let entryId = entry?.id;
+    if (!entryId) {
+      entryId = await handleSave();
     }
-
-    const entryId = entry?.id;
     if (!entryId) return;
 
     setGenerating(true);
