@@ -403,7 +403,7 @@ export default function CreatePage() {
             {generating && generationStatus.length > 0 && (
               <div className="mt-4 p-3 bg-muted rounded-md space-y-2">
                 <p className="text-sm font-medium">生成进度</p>
-                {generationStatus.map((s) => (
+                {generationStatus.filter((s) => s.status !== "pending").map((s) => (
                   <div key={s.platform} className="flex items-center gap-2 text-sm">
                     {s.status === "pending" && (
                       <Loader2 className="h-3 w-3 animate-spin text-muted-foreground" />
